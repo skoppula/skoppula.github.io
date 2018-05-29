@@ -1,0 +1,176 @@
+@font-face {
+	font-family: _rm;
+	src: url('fonts/cmunrm.ttf');
+}
+
+@font-face {
+	font-family: _bf;
+	src: url('fonts/cmunbx.ttf');
+}
+
+@font-face {
+	font-family: _it;
+	src: url('fonts/cmunci.ttf');
+}
+
+@font-face {
+	font-family: _tt;
+	src: url('fonts/cmuntt.ttf');
+}
+
+@font-face {
+	font-family: _sf;
+	src: url('fonts/cmunss.ttf');
+}
+
+@font-face {
+	font-family: _sfx;
+	src: url('fonts/cmunsx.ttf');
+}
+
+body {
+	font-family: _rm, serif;
+	font-size: 13pt;
+	padding-top: 30px;
+	padding-bottom: 30px;
+	padding-left: 60px;
+	padding-right: 60px;
+}
+
+table {
+	font-family: _rm, serif;
+	font-size: 13pt;
+}
+
+td {
+	padding: 5px;
+}
+
+thead {
+	font-family: _sf;
+}
+
+.sflinks a {
+	font-family: _sf;
+}
+
+.fakelink {
+	color: #609C2F;
+}
+
+.pdflink {
+	font-size: 11pt;
+	color: #663300;
+}
+
+.codelink {
+	font-size: 11pt;
+	color: #996600;
+}
+
+.arxivlink {
+	font-size: 11pt;
+	color: #996600;
+}
+
+.orange {
+	color: #ff9900;
+}
+
+.blue {
+	color: #0099ff;
+}
+
+.pink {
+	color: #ff6699;
+}
+
+.green {
+	color: #609C2F;
+}
+
+.darkblue {
+	color: #3366cc;
+}
+
+.brown {
+	color: #996600;
+}
+
+.darkbrown {
+	color: #663300;
+}
+
+.darkgreen {
+	color: #336600;
+}
+
+a {
+	color: #609C2F;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+rm {
+	font-family: _rm;
+}
+
+bf {
+	font-family: _bf;
+}
+
+it {
+	font-family: _it;
+}
+
+sf {
+	font-family: _sf;
+}
+
+sfx {
+	font-family: _sfx;
+}
+
+topheader {
+	font-size: 26pt;
+	display: block;
+}
+
+subheader {
+	font-family: _rm;
+	color: #555;
+	display: block;
+}
+
+.subheadercolor {
+	color: #555;
+}
+
+section {
+	font-family: _bf;
+	font-size: 18pt;
+	margin-top: 30px;
+	display: block;
+}
+
+subsection {
+	font-family: _bf;
+	font-size: 16pt;
+}
+
+papertitle {
+	font-family: _sf;
+	font-size: 14pt;
+	color: #336600;
+}
+
+paperinfo {
+	color: #333;
+}
+
+paperinfo a {
+	color: #333;
+}
