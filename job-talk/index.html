@@ -283,11 +283,35 @@ svg g.gp{transition:opacity .5s ease}
 .pan{height:380px;overflow:hidden;background:#fff}
 .pan img{width:100%;height:100%;object-fit:cover;object-position:50% 0%;display:block;animation:panv 16s ease-in-out infinite alternate}
 @keyframes panv{from{object-position:50% 0%}to{object-position:50% 100%}}
+.vpipe{display:grid;grid-template-columns:1fr 26px 1fr 26px 1fr 26px 1fr 26px 1fr;align-items:stretch;margin-top:6px}
+.vs{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.vs .vn{font-family:var(--f-display);font-weight:700;font-size:28px;color:var(--accent);line-height:1}
+.vs b{font-family:var(--f-display);font-size:24px;line-height:1.1}
+.vs .who{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.vs .gate{margin-top:auto;border-top:2px solid var(--ok);padding-top:8px;font-size:16px;line-height:1.35;color:var(--muted)}
+.va{display:grid;place-items:center;color:var(--faint);font-size:22px}
+.vbox{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:16px 22px;display:flex;flex-direction:column;gap:10px}
+.funnel{display:flex;flex-direction:column;gap:8px}
+.funnel .fb{height:44px;border-radius:8px;background:var(--accent-soft);border:1px solid var(--accent);display:flex;align-items:center;padding:0 14px;font-family:var(--f-display);font-weight:700;font-size:20px;white-space:nowrap}
+.funnel .fb.ok{background:color-mix(in srgb,var(--ok) 22%,transparent);border-color:var(--ok)}
+.vstats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.vstats .v{display:block;font-family:var(--f-display);font-weight:700;font-size:44px;line-height:1}
+.vstats .l{font-size:16px;color:var(--muted);line-height:1.3}
+.closing{justify-content:center;gap:34px}
+.closing h1 .main{font-size:60px}
+.closing .road{margin-top:0}
+.closing .road .card .m{height:170px}
+.closing .road h3{font-size:24px}
+.closing .road .n{font-size:38px}
+.closing .who{font-size:21px}
 #bar{position:absolute;left:0;bottom:0;height:5px;background:var(--accent);transition:width .25s ease;z-index:5}
 #ui{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:20;opacity:.35;transition:opacity .2s}
 #ui:hover,#ui:focus-within{opacity:1}
 #ui button{font-family:var(--f-mono);font-size:13px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 11px;cursor:pointer}
 #ui button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#ui select{font-family:var(--f-mono);font-size:13px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:6px 8px;cursor:pointer;max-width:220px}
+#ui select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (max-width:560px){#ui{flex-wrap:wrap;justify-content:flex-end;left:max(16px,env(safe-area-inset-left,0px))}#ui select{max-width:130px}}
 #notesPanel{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px));max-height:34vh;overflow:auto;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:16px 20px;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:15px;line-height:1.5}
 #notesPanel .nh{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--faint);margin-bottom:6px;gap:12px;flex-wrap:wrap}
 #notesPanel p{font-size:15px;margin:0 0 6px}
@@ -809,24 +833,6 @@ svg g.gp{transition:opacity .5s ease}
   <p class="small">Both diagnostics are also reported <b>beyond the first visible surface</b>, where any single-surface tracker scores exactly 0, and by slice: glass, behind glass, fronts, backs, moving, static, hidden-then-seen, never seen.</p>
 </section>
 
-<!-- 22 MS RESULTS -->
-<section class="slide" data-title="Multi-surface results">
-  <h2>Surface slots add surfaces without losing the first</h2>
-  <div class="row">
-    <div class="col" style="flex:1.45">
-      <div id="c-ms-main"></div>
-      <div class="legend"><span><i style="background:var(--s1)"></i>EA-AJ (2D)</span><span><i style="background:var(--hi)"></i>Detection AP beyond 1st</span><span><i style="background:var(--s3)"></i>Localization beyond 1st</span></div>
-    </div>
-    <div class="col grow" style="gap:16px">
-      <div class="panel"><div class="kicker">Four rows per tracker, on purpose</div>
-        <p class="small"><b>Pretrained</b> · <b>copied to all slots</b> (the MS model at init) · <b>single-surface control</b> fine-tuned on the same data · <b>MS</b>. The control separates the gain from the slots from the gain from the data.</p></div>
-      <p class="small">ARROW-MS (3D): EA-AJ .087 → .133 and 3D detection AP beyond the first surface 0 → .541 over the control. Slot-0 AJ matches or beats the control (2D .592 vs .577), and 2D tracking on real TAP-Vid DAVIS does not degrade.</p>
-      <p class="small">Recipe: K = 8 DETR-style slots, read-only slot 0 with a distillation "hold" loss, cross-slot attention, Hungarian slot assignment.</p>
-    </div>
-  </div>
-  <div class="src">Held-out test scenes; existence cutoffs chosen on validation. Pre-camera-ready numbers.</div>
-</section>
-
 <!-- 23 MS AUDIT -->
 <section class="slide" data-title="Auditing our own metrics">
   <h2>Four things an audit of our own numbers caught, and the fix for each</h2>
@@ -848,53 +854,64 @@ svg g.gp{transition:opacity .5s ease}
 </section>
 
 <!-- 24 MS vs RECON -->
-<section class="slide" data-title="vs 4D reconstruction">
-  <h2>A feed-forward tracker vs. optimization given ground-truth cameras and depth</h2>
-  <div class="row">
-    <div class="col" style="flex:1.1">
-      <div class="kicker">time per 75-frame clip, one A100 (log scale)</div>
-      <div id="c-ms-time"></div>
-      <table class="t" style="font-size:19px">
-        <tr><th></th><th>EA-AJ 2D</th><th>EA-AJ 3D</th><th>Det AP beyond 3D</th><th>backs δ<sub>avg</sub> 3D</th></tr>
-        <tr class="ours"><td>ARROW-MS (RGB only)</td><td>.434</td><td>.178</td><td>.680</td><td>.374</td></tr>
-        <tr><td>Shape of Motion</td><td>.250</td><td>.130</td><td>.362</td><td>.292</td></tr>
-        <tr><td>Lift4D, true depth scale</td><td class="g">–</td><td class="g">–</td><td class="g">–</td><td><b>.381</b></td></tr>
-        <tr><td class="g">front of same object</td><td class="g">–</td><td class="g">–</td><td class="g">–</td><td class="g">.336</td></tr>
-      </table>
-      <p class="tiny">10 test scenes, 1,986 rays, 95 object backs. Baselines receive GT cameras, metric depth and masks. Shape of Motion gets the first visible surface more accurate in 3D (slot-0 AJ .365 vs .232).</p>
-    </div>
-    <div class="col grow">
-      <figure><img src="assets/ms_compare3.jpg" alt="Three clips comparing ARROW with ARROW-MS, which tracks backs of people, a van, and a curtain in front of a panel"><figcaption>ARROW tracks one surface; ARROW-MS also tracks backs, the van behind the man, and a see-through curtain.</figcaption></figure>
-      <div class="kicker">Still hard</div>
-      <p class="small">3D depth precision of hidden surfaces · refraction (behind-glass barely improves) · surfaces never seen in the clip · moving vs static (detection .479 vs .628).</p>
-    </div>
+<section class="slide" data-title="Verification design">
+  <h2 style="font-size:48px">Agents build the data. <span class="acc">Verification is designed in at every stage.</span></h2>
+  <div class="vpipe">
+    <div class="vs"><span class="vn">1</span><b>Spec</b><span class="who">code</span><div class="gate">✓ sampled from a grammar: diversity and validity by construction</div></div>
+    <div class="va">→</div>
+    <div class="vs"><span class="vn">2</span><b>Prompt</b><span class="who">small LLM</span><div class="gate">✓ verifier agent checks it against the spec; regenerate on failure</div></div>
+    <div class="va">→</div>
+    <div class="vs"><span class="vn">3</span><b>Blender scene</b><span class="who">large LLM</span><div class="gate">✓ reject floating or interpenetrating objects, sliding textures, empty views</div></div>
+    <div class="va">→</div>
+    <div class="vs"><span class="vn">4</span><b>Ray-cast labels</b><span class="who">code</span><div class="gate">✓ slot 0 within 0.1 px of the query pixel; refraction cross-checked against tracks</div></div>
+    <div class="va">→</div>
+    <div class="vs"><span class="vn">5</span><b>Release</b><span class="who">code</span><div class="gate">✓ per-file checksums; failing scenes dropped</div></div>
   </div>
-</section>
-
-<!-- 25 LESSONS -->
-<section class="slide" data-title="Lessons for evals">
-  <h2>What carries over to evaluating LLMs and agents</h2>
-  <div class="lessons">
-    <div class="h"></div><div class="h">Principle · where it showed up here</div><div class="h">The same move in LLM / agent evals</div>
-    <div class="n">1</div><div><span class="p">Get labels from a privileged signal, then audit them.</span> LiDAR, kinematics, simulation; 99.2% audited pass rate.</div><div>Executable checks and simulated environments as graders, with a measured human spot-check of the grader itself.</div>
-    <div class="n">2</div><div><span class="p">Decompose the score so a failure names a cause.</span> Q / N / W; EA-AJ split into detection and localization.</div><div>Separate retrieval, planning and execution in agent traces; score intermediate steps, not only the final state.</div>
-    <div class="n">3</div><div><span class="p">Hold the substrate fixed.</span> One shared reconstruction for every tracker.</div><div>Compare models under one harness, tools and prompt; compare harnesses under one model.</div>
-    <div class="n">4</div><div><span class="p">Run degenerate baselines against the metric.</span> Static points, copy-to-all-slots, front-of-object.</div><div>Empty patch, always-refuse, copy-the-test: if they score, the grader is being gamed.</div>
-    <div class="n">5</div><div><span class="p">Flag training overlap in the table.</span> Gray cells where a method saw the source data.</div><div>Contamination tracking per item and per model, shown next to the score.</div>
-    <div class="n">6</div><div><span class="p">Variance before verdicts.</span> Paired bootstrap over scenes; seed spread.</div><div>Paired intervals over tasks, several samples per task; small suites rank inside their noise.</div>
-    <div class="n">7</div><div><span class="p">LLM-generated data needs code-level verifiers.</span> Grammar for coverage, checks for validity.</div><div>Synthetic task and environment generation for RL: verifiers and filters are most of the work.</div>
+  <div class="row" style="gap:40px;margin-top:8px;align-items:stretch">
+    <div class="vbox grow">
+      <div class="kicker">Automated gates are strict</div>
+      <div class="funnel"><div class="fb" style="width:100%"><span>5,000 sampled prompts</span></div><div class="fb ok" style="width:56%"><span>2,809 valid scenes · 56%</span></div></div>
+      <p class="small">Pass rate through build, render and validation checks in one draw of the pipeline.</p>
+    </div>
+    <div class="vbox grow">
+      <div class="kicker">Then humans audit the labels</div>
+      <div class="vstats"><div><span class="v">688</span><span class="l">query rays checked by hand, 25 scenes</span></div><div><span class="v">87%</span><span class="l">every slot correct</span></div><div><span class="v">98.5%</span><span class="l">slot 0 on the right surface</span></div></div>
+      <p class="small">Remaining errors trace to a few asset types: layered garments, back-facing terrain, strongly curved glass.</p>
+    </div>
   </div>
 </section>
 
 <!-- 26 DISCUSSION -->
 <section class="slide" data-title="Discussion">
   <h2>Fun questions along the way</h2>
-  <div class="row" style="gap:28px;flex-wrap:wrap">
-    <div class="panel grow" style="flex-basis:40%"><div class="kicker">set-valued answers</div><p style="font-size:22px">EA-AJ scores a set of unknown size. What's the right analogue for agent tasks with several acceptable outcomes, or none?</p></div>
-    <div class="panel grow" style="flex-basis:40%"><div class="kicker">cost</div><p style="font-size:22px">Baselines cost ~10,000 GPU-hours here. What is the smallest eval that preserves the ranking, and how do you verify that it does?</p></div>
-    <div class="panel grow" style="flex-basis:40%"><div class="kicker">composed vs unified</div><p style="font-size:22px">A pipeline of specialists beat every unified model on TAPVid-MV. When should a lab measure the system, and when the model?</p></div>
-    <div class="panel grow" style="flex-basis:40%"><div class="kicker">synthetic distribution</div><p style="font-size:22px">When LLMs write the environments, when does the generator's taste become the thing models overfit to?</p></div>
+  <div class="col" style="gap:18px">
+    <div class="panel"><p style="font-size:30px;line-height:1.35">How do we design scoring rubrics and verifiers for hidden trajectories that have no visual grounding? Plausible outputs should not be penalized even if they are not GT!</p></div>
+    <div class="panel"><p style="font-size:30px;line-height:1.35">Baselines cost ~10,000 GPU-hours here. What is the smallest eval that preserves the ranking, and how do you verify that it does?</p></div>
+    <div class="panel"><p style="font-size:30px;line-height:1.35">When LLMs write the environments, when does the generator's taste become the thing models overfit to?</p></div>
   </div>
+</section>
+
+<!-- CLOSING -->
+<section class="slide title-slide closing" data-title="Summary">
+  <h1><span class="kick">Measuring and Modelling</span><span class="main">Long-term 3D Motion from Video</span></h1>
+  <div class="road">
+    <div class="card"><div class="m"><video src="assets/tv3d.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">1</span><span class="tag kind bench">Benchmark</span><h3><span class="lead">First benchmark for</span>3D point tracking</h3>
+      <div class="proj"><b>TAPVid-3D</b><br>NeurIPS 2024</div></div></div>
+    <div class="ar">→</div>
+    <div class="card model"><div class="m"><video src="assets/d4rt_kitchen_black.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">2</span><span class="tag kind model">Model</span><h3><span class="lead">Using it to hill&#8209;climb to a</span>SOTA reconstruction model</h3>
+      <div class="proj"><b>D4RT</b><br>CVPR 2026 · Best Paper Award</div></div></div>
+    <div class="ar">→</div>
+    <div class="card"><div class="m"><video src="assets/mv_teaser.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">3</span><span class="tag kind bench">Benchmark</span><h3><span class="lead">First benchmark for</span>multi-view point tracking</h3>
+      <div class="proj"><b>TAPVid-MV</b><br>3DV 2027</div></div></div>
+    <div class="ar">→</div>
+    <div class="card data"><div class="m"><img src="assets/ms_fig_data_scenes.jpg" alt="Blender scenes generated by the LLM data pipeline"></div>
+      <div class="b"><span class="n">4</span><span class="tag kind data">Data + evals</span><h3><span class="lead">Scaling 4D data and evals with</span>LLM-generated Blender scenes</h3>
+      <div class="proj"><b>One Pixel, Many Surfaces</b><br>under review</div></div></div>
+  </div>
+  <div class="who"><b>Skanda Koppula</b><span>Google DeepMind · University College London</span></div>
 </section>
 
 <span id="bar"></span>
@@ -904,6 +921,7 @@ svg g.gp{transition:opacity .5s ease}
   <button id="bPrev" type="button" aria-label="Previous slide">←</button>
   <button id="bCount" type="button" aria-label="Slide number">1 / 1</button>
   <button id="bNext" type="button" aria-label="Next slide">→</button>
+  <select id="bJump" aria-label="Jump to slide" title="Jump to slide (G, or type a number then Enter)"></select>
   <button id="bNotes" type="button" aria-label="Toggle speaker notes">notes</button>
   <button id="bFull" type="button" aria-label="Fullscreen">⛶</button>
 </div>
@@ -977,22 +995,6 @@ dumbbell("c-mv-qn",{label:"AllTracker query view versus other views accuracy",ma
     s.appendChild(el("text",{x:x+6,y:72,class:"val",style:"font-size:16px;font-weight:500"},v+"%"));
     s.appendChild(el("text",{x:x+6,y:94,class:"lab",style:"font-size:14px;fill:var(--muted)"},n));x+=bw;});
   document.getElementById("c-ms-mix").appendChild(s);})();
-
-grouped("c-ms-main",{label:"EA-AJ, detection AP and localization beyond the first surface for four variants of each tracker",
-  cats:["CoT3\npretrained","CoT3\ncopied","CoT3\ncontrol","CoT3-MS","ARROW\npretrained","ARROW\ncopied","ARROW\ncontrol","ARROW-MS"],max:.9,ticks:[0,.3,.6,.9],
-  fmt:v=>v===0?"0":v.toFixed(3).replace(/^0/,""),w:900,h:470,gapRatio:.18,
-  series:[{name:"EA-AJ",color:"var(--s1)",values:[.246,.220,.253,.310,.220,.220,.229,.373]},
-          {name:"Det AP beyond",color:"var(--hi)",values:[0,.006,0,.385,0,.014,0,.577]},
-          {name:"Loc beyond",color:"var(--s3)",values:[0,.588,0,.793,0,.545,0,.799]}]});
-
-/* log time bars */
-(function(){const rows=[["CoTracker3-MS","0.8 s",.8,"var(--hi)"],["ARROW-MS","5.7 s",5.7,"var(--hi)"],["Shape of Motion","23 min",1380,"var(--s2)"],["Lift4D (per object)","87 min",5220,"var(--s2)"]];
-  const w=720,rowH=40,labelW=200,h=rows.length*rowH+36,x0=labelW,x1=w-90,lo=Math.log10(.5),hi=Math.log10(10000),sx=v=>x0+(x1-x0)*(Math.log10(v)-lo)/(hi-lo);
-  const s=svg(w,h,"Runtime per clip on a log scale");
-  [[1,"1 s"],[10,"10 s"],[60,"1 min"],[600,"10 min"],[3600,"1 h"]].forEach(([t,l])=>{s.appendChild(el("line",{x1:sx(t),x2:sx(t),y1:4,y2:h-28,class:"axis","stroke-dasharray":"3 4"}));s.appendChild(el("text",{x:sx(t),y:h-8,"text-anchor":"middle",class:"tick"},l))});
-  rows.forEach(([n,l,v,c],i)=>{const y=6+i*rowH;s.appendChild(el("text",{x:x0-12,y:y+20,"text-anchor":"end",class:"lab",style:"font-size:16px"},n));
-    s.appendChild(el("rect",{x:x0,y:y+4,width:sx(v)-x0,height:rowH-14,rx:3,fill:c}));s.appendChild(el("text",{x:sx(v)+8,y:y+20,class:"val"},l));});
-  document.getElementById("c-ms-time").appendChild(s);})();
 
 /* ---------- tracking-context animation ---------- */
 (function(){
@@ -1331,7 +1333,7 @@ function applyStep(){const sl=slides[cur];
   sl.querySelectorAll("[data-cur]").forEach(e=>e.classList.toggle("cur",step===+e.dataset.cur))}
 function show(i,st){i=Math.max(0,Math.min(N-1,i));
   slides.forEach((s,j)=>{const on=j===i;s.hidden=!on;s.querySelectorAll("video").forEach(v=>{try{if(on){v.currentTime=0;const p=v.play();if(p)p.catch(()=>{})}else v.pause()}catch(e){}})});
-  cur=i;bar.style.width=((i+1)/N*100)+"%";cnt.textContent=`${i+1} / ${N}`;
+  cur=i;bar.style.width=((i+1)/N*100)+"%";cnt.textContent=`${i+1} / ${N}`;{const js=document.getElementById("bJump");if(js)js.value=i}
   if(location.hash!=="#slide-"+(i+1)){try{history.replaceState(null,"","#slide-"+(i+1))}catch(e){location.hash="slide-"+(i+1)}}
   step=st||0;applyStep();renderNotes();}
 function go(d){if(!t0&&d>0){t0=Date.now();timerId=setInterval(renderNotes,1000)}
@@ -1341,8 +1343,14 @@ function go(d){if(!t0&&d>0){t0=Date.now();timerId=setInterval(renderNotes,1000)}
 function fromHash(){const m=/^#slide-(\d+)$/.exec(location.hash);return m?parseInt(m[1],10)-1:0}
 function toggleNotes(){np.hidden=!np.hidden;renderNotes()}
 function full(){try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen()}catch(e){}}
+let numBuf="",numT=null;
 document.addEventListener("keydown",e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(e.target&&/^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName))return;
   const k=e.key;
+  if(/^[0-9]$/.test(k)){numBuf+=k;clearTimeout(numT);numT=setTimeout(()=>{numBuf=""},2000);cnt.textContent="go to "+numBuf;return}
+  if(k==="Enter"&&numBuf){e.preventDefault();const n=parseInt(numBuf,10);numBuf="";clearTimeout(numT);show(n-1);return}
+  if(k==="Escape"&&numBuf){numBuf="";show(cur,step);return}
+  if(k==="g"||k==="G"){e.preventDefault();jumpSel.focus();return}
   if(["ArrowRight","PageDown"," ","Enter"].includes(k)){e.preventDefault();go(1)}
   else if(["ArrowLeft","PageUp","Backspace"].includes(k)){e.preventDefault();go(-1)}
   else if(k==="Home")show(0);else if(k==="End")show(N-1);
@@ -1350,6 +1358,9 @@ document.addEventListener("keydown",e=>{if(e.metaKey||e.ctrlKey||e.altKey)return
 document.getElementById("bPrev").onclick=()=>go(-1);document.getElementById("bNext").onclick=()=>go(1);
 document.getElementById("bNotes").onclick=toggleNotes;document.getElementById("bFull").onclick=full;
 document.getElementById("bCount").onclick=()=>show(0);
+const jumpSel=document.getElementById("bJump");
+slides.forEach((sl,i)=>{const o=document.createElement("option");o.value=i;o.textContent=(i+1)+" · "+(sl.dataset.title||"");jumpSel.appendChild(o)});
+jumpSel.onchange=()=>{show(+jumpSel.value);jumpSel.blur()};
 let tx=null;document.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
 document.addEventListener("touchend",e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);tx=null},{passive:true});
 window.addEventListener("resize",fit);window.addEventListener("hashchange",()=>{const i=fromHash();if(i!==cur)show(i)});
