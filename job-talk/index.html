@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Measuring and Modelling Long-term 3D Motion from Video · Skanda Koppula</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: a fixed 1600x900 slide stage, scaled to fit; quiet lab-notebook paper, one warm highlight for "the number that matters". */
+:root{
+  --paper:#F6F7F9; --card:#FFFFFF; --ink:#151B27; --muted:#596277; --faint:#8A93A6; --rule:#DCE0E8;
+  --accent:#23439A; --accent-soft:#E6ECFA; --hi:#C9620F; --hi-soft:#FBEBDD;
+  --front:#D9711C; --back:#2F74D6; --ok:#2D8A5B; --bad:#B8402F; --gray:#A4ACBB;
+  --s1:#23439A; --s2:#5F86D9; --s3:#B9C9EE; --lav:#7656C4; --lav-soft:#EEE8FA;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --chrome:#E9ECF1;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#10141C; --card:#171C27; --ink:#E7EBF2; --muted:#A1AABB; --faint:#6F7889; --rule:#2A3242;
+  --accent:#8EAEFF; --accent-soft:#1D2742; --hi:#F2934A; --hi-soft:#3A2618;
+  --front:#F08D3E; --back:#6FA2F2; --ok:#5BC08A; --bad:#E2705E; --gray:#5C6576;
+  --s1:#8EAEFF; --s2:#5677C6; --s3:#34446B; --lav:#BCA6F7; --lav-soft:#2A2244; --chrome:#0A0D13; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#10141C; --card:#171C27; --ink:#E7EBF2; --muted:#A1AABB; --faint:#6F7889; --rule:#2A3242;
+  --accent:#8EAEFF; --accent-soft:#1D2742; --hi:#F2934A; --hi-soft:#3A2618;
+  --front:#F08D3E; --back:#6FA2F2; --ok:#5BC08A; --bad:#E2705E; --gray:#5C6576;
+  --s1:#8EAEFF; --s2:#5677C6; --s3:#34446B; --lav:#BCA6F7; --lav-soft:#2A2244; --chrome:#0A0D13; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--chrome);color:var(--ink);font-family:var(--f-body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;box-sizing:border-box}
+#viewport{position:relative;width:100%;height:100%;display:grid;place-items:center}
+#stage{width:1600px;height:900px;position:absolute;left:50%;top:50%;transform-origin:center center;background:var(--paper);
+  box-shadow:0 10px 40px rgba(0,0,0,.18);border-radius:6px;overflow:hidden}
+.slide{position:absolute;inset:0;padding:72px 96px 84px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px}
+.slide[hidden]{display:none!important}
+.notes{display:none}
+
+/* chrome on each slide */
+.eyebrow{font-family:var(--f-mono);font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:flex;gap:18px;align-items:center}
+.eyebrow .dim{color:var(--faint)}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:78px;line-height:1.02;font-weight:700}
+h2{font-size:50px;line-height:1.08;font-weight:600}
+h3{font-size:27px;line-height:1.2;font-weight:600}
+p,li{font-size:24px;line-height:1.45;margin:0}
+.lede{font-size:27px;line-height:1.45;color:var(--muted);max-width:1180px}
+.small{font-size:21px;line-height:1.45;color:var(--muted)}
+.tiny{font-size:16px;line-height:1.4;color:var(--faint)}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+b,strong{font-weight:600}
+.hi{color:var(--hi);font-weight:600}
+.acc{color:var(--accent);font-weight:600}
+ul.clean{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+ul.clean li{padding-left:26px;position:relative}
+ul.clean li::before{content:"";position:absolute;left:2px;top:.62em;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.foot{position:absolute;left:96px;right:96px;bottom:28px;display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:15px;color:var(--faint)}
+.src{font-family:var(--f-mono);font-size:15px;color:var(--faint);line-height:1.4}
+
+.row{display:flex;gap:44px;min-height:0}
+.col{display:flex;flex-direction:column;gap:20px;min-width:0}
+.grow{flex:1}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.panel h3{font-size:24px}
+.kicker{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.callout{border-left:4px solid var(--hi);padding:6px 0 6px 22px}
+.callout p{font-size:26px}
+figure{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+figure img,figure video{display:block;width:100%;border-radius:8px;border:1px solid var(--rule);background:#000}
+figcaption{font-size:16px;color:var(--faint);line-height:1.35}
+.media-dark img{filter:none}
+
+/* big numbers */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+.stat{display:flex;flex-direction:column;gap:4px;border-top:2px solid var(--ink);padding-top:12px}
+.stat .v{font-family:var(--f-display);font-size:50px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.stat .l{font-size:18px;color:var(--muted);line-height:1.35}
+
+/* tables */
+table.t{border-collapse:collapse;font-size:20px;font-variant-numeric:tabular-nums;width:100%}
+table.t th{font-family:var(--f-mono);font-weight:500;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);text-align:right;padding:6px 12px;border-bottom:1px solid var(--rule)}
+table.t th:first-child,table.t td:first-child{text-align:left}
+table.t td{padding:7px 12px;text-align:right;border-bottom:1px solid var(--rule)}
+table.t tr.ours td{background:var(--hi-soft);font-weight:600}
+table.t td.g{color:var(--faint)}
+table.t.lt th,table.t.lt td{text-align:left}
+table.t.left2 th:nth-child(2),table.t.left2 td:nth-child(2){text-align:left}
+
+/* charts */
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{font-family:var(--f-body);fill:var(--ink)}
+svg.chart .axis{stroke:var(--rule)}
+svg.chart .tick{fill:var(--faint);font-family:var(--f-mono);font-size:14px}
+svg.chart .lab{font-size:17px}
+svg.chart .val{font-family:var(--f-mono);font-size:15px}
+.legend{display:flex;gap:22px;flex-wrap:wrap;font-size:17px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:14px;height:14px;border-radius:3px;display:inline-block}
+
+/* title slide */
+.title-slide{justify-content:center;gap:30px}
+.title-slide .who{font-size:24px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.title-slide .who b{color:var(--ink)}
+.title-slide .who,.title-slide .who b{color:#6A7180}
+.title-slide h1 .kick{display:block;font-size:34px;font-weight:400;color:var(--muted);letter-spacing:.01em;margin-bottom:14px}
+.title-slide h1 .main{display:block;font-size:68px;line-height:1.0;white-space:nowrap}
+.title-slide{justify-content:center;background:#000;--ink:#F2F4F8;--muted:#A7AFBF;--faint:#7A8394;color:var(--ink)}
+.title-bg{position:absolute;right:64px;top:0;bottom:0;width:34%;overflow:hidden;background:#000;display:flex;align-items:center}
+.title-bg video{width:100%;height:auto;max-height:100%;display:block}
+
+/* arc timeline */
+.arc{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative}
+.arc .node{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:22px 24px;display:flex;flex-direction:column;gap:10px;position:relative}
+.arc .node .yr{font-family:var(--f-mono);font-size:15px;color:var(--faint);letter-spacing:.08em}
+.arc .node .kind{font-family:var(--f-mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;align-self:flex-start}
+.kind.bench{background:var(--accent-soft);color:var(--accent)}
+.kind.model{background:var(--hi-soft);color:var(--hi)}
+.arc .node h3{font-size:28px}
+.arc .node p{font-size:19px;color:var(--muted);line-height:1.4}
+.arc .node .q{font-size:19px;line-height:1.4;border-top:1px dashed var(--rule);padding-top:10px}
+.arc .node:not(:last-child)::after{content:"→";position:absolute;right:-19px;top:44%;font-size:24px;color:var(--faint);z-index:2}
+
+/* pipeline */
+.pipe{display:flex;gap:0;align-items:stretch}
+.pipe .stepbox{flex:1;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pipe .stepbox .who{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.pipe .stepbox .who.code{color:var(--ok)}
+.pipe .stepbox .who.llm{color:var(--hi)}
+.pipe .stepbox p{font-size:18px;line-height:1.35}
+.pipe .arrow{width:30px;display:grid;place-items:center;color:var(--faint);font-size:22px;flex:none}
+
+/* lessons */
+.lessons{display:grid;grid-template-columns:52px 1fr 1fr;gap:0;border-top:2px solid var(--ink)}
+.lessons > div{padding:13px 16px;border-bottom:1px solid var(--rule);font-size:19px;line-height:1.38}
+.lessons .h{font-family:var(--f-mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.lessons .n{font-family:var(--f-mono);color:var(--accent);font-size:18px}
+.lessons .p{font-weight:600}
+
+/* section divider */
+.divider{justify-content:center}
+.divider .big{font-family:var(--f-display);font-size:150px;font-weight:700;line-height:.9;color:var(--accent-soft);-webkit-text-stroke:2px var(--accent);letter-spacing:-.02em}
+.divider h2{font-size:64px}
+
+/* deck UI */
+/* roadmap */
+.road{display:grid;grid-template-columns:1fr 34px 1fr 34px 1fr 34px 1fr;align-items:stretch;margin-top:10px}
+.road .card{background:var(--card);border:1px solid var(--rule);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.road .card .m{height:250px;background:#000;position:relative;overflow:hidden}
+.road .card .m video,.road .card .m img{width:100%;height:100%;object-fit:cover;display:block}
+.road .card .b{padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.road .n{font-family:var(--f-display);font-size:46px;font-weight:700;line-height:.9;color:var(--accent)}
+.road .card.model .n{color:var(--hi)}
+.road .card.data .n{color:var(--lav)}
+.kind.data{background:var(--lav-soft);color:var(--lav)}
+.road h3{font-size:29px;line-height:1.12}
+.road h3 .lead{display:block;font-size:21px;font-weight:500;color:var(--faint);white-space:nowrap;margin-bottom:4px;letter-spacing:0}
+.road .proj{margin-top:auto;font-family:var(--f-mono);font-size:15px;letter-spacing:.04em;color:var(--faint);border-top:1px solid var(--rule);padding-top:12px;line-height:1.45}
+.road .proj b{color:var(--ink);font-weight:600}
+.road .ar{display:grid;place-items:center;color:var(--faint);font-size:28px}
+.road .tag{font-family:var(--f-mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;align-self:flex-start}
+/* tracking context */
+.trk{display:grid;grid-template-columns:1fr 30px 1fr 30px 1fr;align-items:start}
+.trk .p{display:flex;flex-direction:column;gap:10px;min-width:0}
+.trk .p svg{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--rule);border-radius:10px}
+.trk .ph{font-size:23px;line-height:1.25}
+.trk .ph b{font-family:var(--f-display);font-size:25px;color:var(--accent)}
+.trk .ar{padding-top:110px;text-align:center;color:var(--faint);font-size:26px}
+.uses{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.use{display:flex;flex-direction:column;gap:8px;min-width:0}
+.use video{width:100%;height:170px;object-fit:cover;border-radius:10px;border:1px solid var(--rule);background:#000;display:block}
+.use .un{font-family:var(--f-display);font-size:25px;font-weight:700}
+.use .ud{font-size:17px;color:var(--muted);line-height:1.35}
+/* click-through steps */
+.frag{opacity:0;transform:translateY(10px);transition:opacity .35s ease,transform .35s ease}
+.frag.on{opacity:1;transform:none}
+.reveal.frag{transform:translateY(24px) scale(.97)}
+.reveal.frag.on{transform:none}
+.stack{display:grid;min-width:0}.stack>*{grid-area:1/1;min-width:0}
+.only{opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
+.only.on{opacity:1;visibility:visible;transition:opacity .3s ease}
+.dimfrag{opacity:.2;filter:grayscale(1);transition:opacity .45s ease,filter .45s ease}
+.dimfrag.on{opacity:1;filter:none}
+/* tapvid-3d section */
+.punch{font-family:var(--f-display);font-size:34px;font-weight:600;line-height:1.15}
+.beat{display:flex;flex-direction:column;gap:10px}
+.beat.q .punch{color:var(--hi)}
+.chips{display:flex;gap:10px;flex-wrap:wrap}
+.chips span{font-family:var(--f-mono);font-size:17px;border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:6px 10px;color:var(--muted)}
+.paper{border:1px solid var(--rule);border-radius:14px;overflow:hidden;background:var(--card);display:flex;flex-direction:column}
+.paper video{width:100%;height:420px;object-fit:cover;display:block;background:#fff}
+.paper .pt{padding:24px 30px 28px;display:flex;flex-direction:column;gap:10px}
+.paper h1{font-size:48px;line-height:1.05}
+.paper p{font-size:21px;color:var(--muted)}
+.can{display:flex;gap:18px;align-items:flex-start}
+.can .mk{font-family:var(--f-display);font-size:44px;line-height:1;width:44px;flex:none;text-align:center}
+.can.ok .mk{color:var(--ok)}.can.no .mk{color:var(--bad)}
+.can b{font-family:var(--f-display);font-size:34px;display:block;line-height:1.05}
+.can p{font-size:22px;color:var(--muted);margin-top:4px}
+.can.no b{color:var(--bad)}
+#xkcd{width:100%;height:auto}
+#xkcd .ln{fill:none;stroke:var(--ink);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+#xkcd .hand{font-family:"Patrick Hand","Comic Sans MS",cursive;fill:var(--ink)}
+.srcs{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.src3{display:flex;flex-direction:column;gap:8px;min-width:0}
+.src3 video{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:1px solid var(--rule);background:#000;display:block}
+.src3 .sn{font-family:var(--f-display);font-size:27px;font-weight:700;margin-top:4px}
+.src3 .ss{font-size:19px;color:var(--muted)}
+.src3 .sc{font-family:var(--f-mono);font-size:16px;color:var(--faint)}
+.src3 .sc b{color:var(--ink);font-weight:600}
+ol.steps.tk b{white-space:normal;font-size:31px}
+.labor{display:grid;grid-template-columns:1fr 40px 1fr;align-items:stretch;margin-top:10px}
+.labor .ar{display:grid;place-items:center;font-size:30px;color:var(--faint)}
+.lb{position:relative;border-radius:12px;padding:20px 22px;border:1px solid var(--rule);background:var(--card);display:flex;flex-direction:column;gap:6px}
+.lb .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.lb b{font-family:var(--f-display);font-size:40px;line-height:1}
+.lb p{font-size:19px;color:var(--muted)}
+.lb .mk{position:absolute;right:18px;top:14px;font-family:var(--f-display);font-size:40px;font-weight:700}
+.lb.hard .mk{color:var(--bad)}.lb.easy .mk{color:var(--ok)}
+.lb.easy{border-color:var(--ok)}
+.cite{display:flex;align-items:center;gap:20px;border-top:2px solid var(--ink);padding-top:14px;margin-top:6px}
+.cite .v{font-family:var(--f-display);font-size:64px;font-weight:700;line-height:1}
+.cite .l{font-size:21px;color:var(--muted);line-height:1.3}
+.total{display:flex;align-items:baseline;justify-content:center;gap:64px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--accent);border-radius:12px;padding:16px 30px;margin-top:44px}
+.total .tl{font-family:var(--f-mono);font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.total .tv{font-size:20px;color:var(--muted)}
+.total .tv b{font-family:var(--f-display);font-size:40px;font-weight:700;color:var(--ink);margin-right:10px}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:26px}
+ol.steps li{display:flex;gap:20px;align-items:flex-start}
+ol.steps li.on:not(.cur){opacity:.4}
+ol.steps .sn{font-family:var(--f-display);font-size:52px;font-weight:700;line-height:.9;color:var(--accent);width:40px;flex:none}
+ol.steps b{font-family:var(--f-display);font-size:33px;display:block;line-height:1.05;white-space:nowrap}
+ol.steps p{font-size:21px;color:var(--muted);margin-top:6px}
+.vis{display:flex;flex-direction:column;gap:18px;min-width:0}
+.vis .punchl{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.vis .punchl div{border-top:2px solid var(--accent);padding-top:10px;font-size:21px;line-height:1.3}
+.vis .punchl b{font-family:var(--f-display);font-size:24px;display:block}
+.qc{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:center;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:16px 22px}
+.qc svg{width:150px;height:auto;display:block}
+.qc .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.qc b{font-family:var(--f-display);font-size:27px;display:block;line-height:1.1;margin:2px 0 4px}
+.qc p{font-size:19px;color:var(--muted);line-height:1.35}
+.qc .big{font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--ok)}
+table.heat{border-collapse:separate;border-spacing:6px;font-variant-numeric:tabular-nums}
+table.heat th{font-family:var(--f-mono);font-weight:500;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:4px 8px;text-align:center}
+table.heat th.r{text-align:right;font-family:var(--f-body);font-size:20px;letter-spacing:0;text-transform:none;color:var(--ink);font-weight:500}
+table.heat td{width:170px;height:62px;text-align:center;border-radius:8px;font-family:var(--f-display);font-size:30px;font-weight:600;color:var(--ink)}
+.award{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;color:var(--hi);border:1px solid var(--hi);background:var(--hi-soft);border-radius:999px;padding:3px 10px}
+.flagstep{display:none}
+svg g.qs{transition:opacity .5s ease}
+svg g.gp{transition:opacity .5s ease}
+.qs .drawl{stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset 1.2s ease .15s}
+.qs.on .drawl{stroke-dashoffset:0}
+@keyframes d4pulse{0%,100%{r:11}50%{r:16}}
+.pulse{animation:d4pulse 1.6s ease-in-out infinite}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gal video{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--rule);background:#fff;display:block}
+.bigstat{display:flex;flex-direction:column;gap:4px;border-top:2px solid var(--hi);padding-top:10px}
+.bigstat .v{font-family:var(--f-display);font-size:54px;font-weight:700;line-height:1;color:var(--hi)}
+.bigstat .l{font-size:20px;color:var(--muted);line-height:1.3}
+.mvv{width:100%;max-height:420px;object-fit:contain;border-radius:12px;border:1px solid var(--rule);background:#000;display:block}
+.mvcap{font-size:21px;color:var(--muted);margin-top:12px}.mvcap b{color:var(--ink)}
+.mvstats{display:flex;gap:40px;justify-content:center;margin-top:16px;font-size:19px;color:var(--muted);align-items:baseline}
+.mvstats b{font-family:var(--f-display);font-size:40px;color:var(--ink);margin-right:8px}
+.camrow{background:#fff;border-radius:12px;padding:14px 10px 6px}
+.camrow .cn{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-family:var(--f-display);font-weight:700;font-size:19px;color:#111;margin-bottom:4px}
+.camrow img{width:100%;display:block}
+.divgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 28px;margin-top:20px}
+.divgrid div{border-top:2px solid var(--accent);padding-top:8px;font-size:20px;line-height:1.3}
+.divgrid .k{display:block;font-family:var(--f-display);font-weight:700;font-size:24px;margin-bottom:2px}
+.labels4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.labels4 figure{margin:0;display:flex;flex-direction:column;gap:8px}
+.labels4 img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;border:1px solid var(--rule);display:block}
+.labels4 figcaption{font-family:var(--f-display);font-weight:700;font-size:21px;color:var(--ink);text-align:center}
+.wparts{display:flex;flex-direction:column;gap:12px}
+.wp{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 18px}
+.wp .n{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:20px;color:#111}
+.wp b{font-family:var(--f-display);font-size:25px;display:block;line-height:1.1}
+.wp .m{font-family:var(--f-mono);font-size:15px;color:var(--muted)}
+.pan{height:380px;overflow:hidden;background:#fff}
+.pan img{width:100%;height:100%;object-fit:cover;object-position:50% 0%;display:block;animation:panv 16s ease-in-out infinite alternate}
+@keyframes panv{from{object-position:50% 0%}to{object-position:50% 100%}}
+#bar{position:absolute;left:0;bottom:0;height:5px;background:var(--accent);transition:width .25s ease;z-index:5}
+#ui{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:20;opacity:.35;transition:opacity .2s}
+#ui:hover,#ui:focus-within{opacity:1}
+#ui button{font-family:var(--f-mono);font-size:13px;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:7px 11px;cursor:pointer}
+#ui button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#notesPanel{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(56px + env(safe-area-inset-bottom,0px));max-height:34vh;overflow:auto;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:16px 20px;z-index:30;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:15px;line-height:1.5}
+#notesPanel .nh{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--faint);margin-bottom:6px;gap:12px;flex-wrap:wrap}
+#notesPanel p{font-size:15px;margin:0 0 6px}
+@media (prefers-reduced-motion: reduce){#bar{transition:none}}
+</style>
+
+<div id="viewport"><div id="stage">
+
+<!-- 1 TITLE -->
+<section class="slide title-slide" data-title="Title">
+  <div class="title-bg"><video src="assets/title_hi4d_orbit.mp4" muted loop playsinline autoplay preload="auto" aria-label="Hi4D high-five: two people as a point cloud with 3D point tracks, inside the 8-camera rig"></video></div>
+  <div class="col" style="gap:30px;position:relative;z-index:2">
+    <h1><span class="kick">Measuring and Modelling</span><span class="main">Long-term 3D Motion from Video</span></h1>
+    <div class="who"><b>Skanda Koppula</b><span>Google DeepMind · University College London</span></div>
+  </div>
+</section>
+
+<!-- 1b ROADMAP -->
+<section class="slide" data-title="Roadmap">
+  <h2 style="font-size:58px">Evaluating 3D video models</h2>
+  <div class="road">
+    <div class="card"><div class="m"><video src="assets/tv3d.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">1</span><span class="tag kind bench">Benchmark</span><h3><span class="lead">First benchmark for</span>3D point tracking</h3>
+      <div class="proj"><b>TAPVid-3D</b><br>NeurIPS 2024</div></div></div>
+    <div class="ar">→</div>
+    <div class="card model"><div class="m"><video src="assets/d4rt_kitchen_black.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">2</span><span class="tag kind model">Model</span><h3><span class="lead">Using it to hill&#8209;climb to a</span>SOTA reconstruction model</h3>
+      <div class="proj"><b>D4RT</b><br>CVPR 2026 · Best Paper Award</div></div></div>
+    <div class="ar">→</div>
+    <div class="card"><div class="m"><video src="assets/mv_teaser.mp4" muted loop playsinline preload="auto"></video></div>
+      <div class="b"><span class="n">3</span><span class="tag kind bench">Benchmark</span><h3><span class="lead">First benchmark for</span>multi-view point tracking</h3>
+      <div class="proj"><b>TAPVid-MV</b><br>3DV 2027</div></div></div>
+    <div class="ar">→</div>
+    <div class="card data"><div class="m"><img src="assets/ms_fig_data_scenes.jpg" alt="Blender scenes generated by the LLM data pipeline"></div>
+      <div class="b"><span class="n">4</span><span class="tag kind data">Data + evals</span><h3><span class="lead">Scaling 4D data and evals with</span>LLM-generated Blender scenes</h3>
+      <div class="proj"><b>One Pixel, Many Surfaces</b><br>under review</div></div></div>
+  </div>
+</section>
+
+<!-- 1c CONTEXT -->
+<section class="slide" data-title="Why point tracking">
+  <h2 style="font-size:46px">Follow any physical point through a video</h2>
+  <div class="trk">
+    <div class="p"><svg id="trk2d" viewBox="0 0 440 250" role="img" aria-label="Animation: tracked points on a moving cube in a single camera image, with 2D trails"></svg>
+      <div class="ph"><b>2D</b> · where does this pixel go?</div></div>
+    <div class="ar">→</div>
+    <div class="p"><svg id="trk3d" viewBox="0 0 440 250" role="img" aria-label="Animation: the same points as 3D trajectories above a floor grid, seen by one camera"></svg>
+      <div class="ph"><b>3D</b> · where does it go in the 3D world?</div></div>
+    <div class="ar">→</div>
+    <div class="p"><svg id="trkmv" viewBox="0 0 440 250" role="img" aria-label="Animation: three cameras around the scene, each with a ray to the same tracked point"></svg>
+      <div class="ph"><b>Multi-view</b> · one point, every camera</div></div>
+  </div>
+  <div class="dimfrag col" data-step="1" style="gap:12px;margin-top:6px">
+  <div class="kicker">Where it is used</div>
+  <div class="uses">
+    <div class="use"><video src="assets/use_robot.mp4" muted loop playsinline preload="auto"></video><div class="un">Gemini Robotics</div><div class="ud">Point tracks as a motion representation for manipulation.</div></div>
+    <div class="use"><video src="assets/use_videogen.mp4" muted loop playsinline preload="auto"></video><div class="un">Google Veo &amp; modern video gen models</div><div class="ud">Tracks to control+verify generated motion.</div></div>
+    <div class="use"><video src="assets/use_bird.mp4" muted loop playsinline preload="auto"></video><div class="un">Wildlife monitoring</div><div class="ud">Following animals' bodies in 3D from field footage.</div></div>
+  </div>
+  </div>
+</section>
+
+<!-- I.1 2D → 3D -->
+<section class="slide" data-title="I · 2D → 3D">
+  <h2 style="font-size:50px;line-height:1.15">In 2024, 2D point tracking models were mature.</h2>
+  <div class="chips" style="margin-top:-6px"><span>TAPIR</span><span>CoTracker</span><span>BootsTAPIR</span></div>
+  <div class="row" style="align-items:center;gap:36px;flex:1">
+    <div class="col frag" data-step="1" id="liftflag" style="flex:0 0 400px;gap:40px">
+      <p class="punch hi" style="font-size:46px;font-weight:700;line-height:1.1">But robots act in meters, not pixels!</p>
+      <div class="beat q"><div class="kicker">so...</div><p class="punch" style="color:var(--ink)">How do we build 3D tracking capability?</p></div>
+    </div>
+    <div class="grow"><svg id="lift" viewBox="0 0 980 520" style="width:100%;height:auto;display:block" role="img" aria-label="Animation: points tracked on a spinning office chair, first as 2D tracks on a camera's image plane, then lifted along camera rays into metric 3D trajectories"></svg></div>
+  </div>
+</section>
+
+<!-- I.2 MEASURE IT -->
+<section class="slide" data-title="I · Measure it">
+  <h2 style="font-size:54px">Want a capability? <span class="acc">Find a way to measure it</span> and then hill-climb.</h2>
+  <div class="paper frag reveal" data-step="1">
+    <video src="assets/tv3d_zoom.mp4" muted loop playsinline preload="auto"></video>
+    <div class="pt"><div class="kicker">NeurIPS 2024 · Datasets &amp; Benchmarks</div>
+      <h1>TAPVid-3D: A Benchmark for Tracking Any Point in 3D</h1>
+      <p>Koppula*, Rocco*, Yang, Heyward, Carreira, Zisserman, Brostow, Doersch</p></div>
+  </div>
+</section>
+
+<!-- I.3 LABELLING PROBLEM -->
+<section class="slide" data-title="I · Labelling problem">
+  <h2 style="font-size:54px">Humans can label 2D and text. Not 3D.</h2>
+  <div class="row" style="flex:1;align-items:center;gap:48px">
+    <div class="grow">
+      <svg id="xkcd" viewBox="0 0 760 500" role="img" aria-label="Cartoon: a stick figure at a computer scratches their head, unsure how far away a pixel is in metres">
+        <defs><filter id="wob" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter></defs>
+        <g filter="url(#wob)">
+          <path class="ln" d="M30 470 L735 472"/>
+          <!-- desk -->
+          <path class="ln" d="M370 330 L715 331 M392 331 L390 470 M694 331 L696 470"/>
+          <!-- monitor -->
+          <rect class="ln" x="470" y="140" width="230" height="160" rx="8"/>
+          <path class="ln" d="M585 300 L585 330 M548 330 L622 330"/>
+          <!-- keyboard -->
+          <path class="ln" d="M470 324 L585 324"/>
+          <!-- 3D axes in monitor -->
+          <path class="ln" style="stroke-width:2.2" d="M505 272 L640 272 M505 272 L555 240 M505 272 L505 170"/>
+          <path style="fill:none;stroke:var(--hi);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 9" d="M520 258 C 545 205, 590 268, 628 196"/>
+          <circle cx="628" cy="196" r="6" style="fill:var(--hi)"/>
+          <text class="hand" x="648" y="232" font-size="54">?</text>
+          <!-- stool -->
+          <path class="ln" d="M190 395 L285 397 M238 397 L236 470 M205 470 L270 470"/>
+          <!-- figure -->
+          <circle class="ln" cx="262" cy="228" r="31"/>
+          <path class="ln" d="M266 259 L248 388"/>
+          <path class="ln" d="M248 388 L330 392 L333 466 M250 390 L318 400 L312 468"/>
+          <path class="ln" d="M260 292 L340 322 L468 318"/>
+          <path class="ln" d="M259 290 L202 262 L232 210"/>
+          <path class="ln" style="stroke-width:2.4" d="M226 200 l-8 -6 M236 198 l-4 -9 M244 201 l2 -9"/>
+          <!-- sweat -->
+          <path class="ln" style="stroke-width:2.2" d="M305 210 q6 10 0 14 q-6 -4 0 -14"/>
+          <!-- thought -->
+          <circle class="ln" style="stroke-width:2.4" cx="312" cy="178" r="5"/>
+          <circle class="ln" style="stroke-width:2.4" cx="334" cy="152" r="8"/>
+          <path class="ln" style="stroke-width:2.6" d="M140 95 C 110 60, 160 25, 230 38 C 270 8, 380 10, 410 32 C 460 6, 590 10, 615 40 C 695 35, 725 98, 662 116 C 640 146, 520 148, 470 132 C 420 152, 300 150, 260 132 C 190 148, 118 130, 140 95 Z"/>
+          <text class="hand" x="430" y="96" font-size="25" text-anchor="middle">is this pixel 2.32 meters or 2.6 meters away....?</text>
+          
+        </g>
+      </svg>
+    </div>
+    <div class="col" style="flex:0 0 430px;gap:30px">
+      <div class="can ok"><span class="mk">✓</span><div><b>2D</b><p>click where the point is</p></div></div>
+      <div class="can ok"><span class="mk">✓</span><div><b>Text</b><p>say what happens</p></div></div>
+      <div class="can no"><span class="mk">✗</span><div><b>3D</b><p>its depth in metres, every frame, for thousands of points</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- I.4 SENSORS -->
+<section class="slide" data-title="I · Sensor labels">
+  <h2 style="font-size:50px;line-height:1.1">3D is obtained from extra hardware signals:<span style="display:block;font-size:30px;font-weight:500;color:var(--faint);margin-top:10px;letter-spacing:0">LIDAR on vehicles, extra cameras, infrared trackers, IMU, ...</span></h2>
+  <div class="srcs">
+    <div class="src3"><video src="assets/tv3d_src_adt.mp4" muted loop playsinline preload="auto"></video><div class="sn">Aria Digital Twin</div><div class="ss">egocentric glasses · digital-twin scene</div><div class="sc"><b>1,956</b> clips · indoor</div></div>
+    <div class="src3"><video src="assets/tv3d_src_dt.mp4" muted loop playsinline preload="auto"></video><div class="sn">DriveTrack · Waymo</div><div class="ss">LiDAR · tracked 3D boxes</div><div class="sc"><b>2,457</b> clips · driving</div></div>
+    <div class="src3"><video src="assets/tv3d_src_ps.mp4" muted loop playsinline preload="auto"></video><div class="sn">Panoptic Studio</div><div class="ss">camera dome · dynamic 3D Gaussians</div><div class="sc"><b>156</b> clips · people</div></div>
+  </div>
+  <div class="total frag" data-step="1">
+    <span class="tv"><b>4,569</b>real-world evaluation clips</span>
+    <span class="tv"><b>2.1M</b>metric 3D trajectories</span>
+    <span class="tv"><b>3</b>domains</span>
+  </div>
+</section>
+
+<!-- I.5 MAKING IT A BENCHMARK (stepped) -->
+<section class="slide" data-title="I · Making it a benchmark">
+  <h2 style="font-size:50px">Three things turn raw labels into a benchmark</h2>
+  <div class="row" style="flex:1;gap:46px;align-items:flex-start;margin-top:10px">
+    <ol class="steps" style="flex:0 0 470px">
+      <li class="frag" data-step="1" data-cur="1"><span class="sn">1</span><div><b>Designing meaningful metrics</b><ul class="clean" style="gap:4px;margin-top:18px;margin-left:22px;font-size:21px;color:var(--muted);white-space:nowrap"><li>3D Average Jaccard (3D-AJ)</li><li>Average Points within δ (APD)</li><li>Occlusion Accuracy (OA)</li></ul></div></li>
+      <li class="frag" data-step="2" data-cur="2"><span class="sn">2</span><div><b>Quality control</b><p>Are the labels actually right?</p></div></li>
+      <li class="frag" data-step="3" data-cur="3"><span class="sn">3</span><div><b>Baselines</b><p>Where does the field start?</p></div></li>
+    </ol>
+    <div class="stack grow">
+      <!-- 1 metrics -->
+      <div class="only vis" data-only="1">
+        <svg viewBox="0 0 900 330" style="width:100%;height:auto;display:block" role="img" aria-label="Depth-adaptive threshold: the tolerance sphere around each point grows with its distance from the camera">
+          <g style="font-family:var(--f-mono);font-size:16px">
+            <path d="M40 165 L95 135 L95 195 Z" style="fill:var(--accent-soft);stroke:var(--accent);stroke-width:2"/>
+            <text x="34" y="225" style="fill:var(--faint)">camera</text>
+            <g style="stroke:var(--rule);stroke-width:1.5;fill:none">
+              <path d="M95 165 L230 152 M95 165 L230 178"/>
+              <path d="M95 165 L455 140 M95 165 L455 192"/>
+              <path d="M95 165 L840 116 M95 165 L840 214"/>
+            </g>
+            <circle cx="230" cy="165" r="13" style="fill:var(--hi-soft);stroke:var(--hi);stroke-width:2"/>
+            <circle cx="455" cy="166" r="26" style="fill:var(--hi-soft);stroke:var(--hi);stroke-width:2"/>
+            <circle cx="790" cy="165" r="50" style="fill:var(--hi-soft);stroke:var(--hi);stroke-width:2"/>
+            <circle cx="230" cy="165" r="4" style="fill:var(--hi)"/><circle cx="455" cy="166" r="4" style="fill:var(--hi)"/><circle cx="790" cy="165" r="4" style="fill:var(--hi)"/>
+            <text x="230" y="214" text-anchor="middle" style="fill:var(--muted)">1 m</text>
+            <text x="455" y="226" text-anchor="middle" style="fill:var(--muted)">2 m</text>
+            <text x="790" y="248" text-anchor="middle" style="fill:var(--muted)">4 m</text>
+            <text x="450" y="284" text-anchor="middle" style="fill:var(--muted);font-size:18px">What does "pretty close" mean in 3D?</text>
+            <text x="450" y="310" text-anchor="middle" style="fill:var(--faint)">error tolerance sphere grows with depth</text>
+          </g>
+        </svg>
+        <div class="punchl" style="grid-template-columns:auto;justify-content:center;margin-top:22px">
+          <div style="border-top:none;padding-top:0"><b>Decomposable + Debuggable</b>
+            <ul class="clean" style="margin-top:8px;gap:6px">
+              <li>Is the issue regressing depth?</li>
+              <li>Are failures with closer points or farther points?</li>
+              <li>Perfect depth ⇒ 3D-AJ = 2D-AJ.</li>
+            </ul></div>
+        </div>
+      </div>
+      <!-- 2 QC -->
+      <div class="only vis" data-only="2" style="gap:14px">
+        <div class="qc">
+          <svg viewBox="0 0 150 90" role="img" aria-label="Reviewers"><g style="fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round">
+            <circle cx="22" cy="28" r="10"/><path d="M22 38 L22 64 M10 80 L22 64 L34 80 M8 48 L36 48"/>
+            <circle cx="58" cy="28" r="10"/><path d="M58 38 L58 64 M46 80 L58 64 L70 80 M44 48 L72 48"/>
+            <circle cx="94" cy="28" r="10"/><path d="M94 38 L94 64 M82 80 L94 64 L106 80 M80 48 L108 48"/>
+            <circle cx="130" cy="28" r="10"/><path d="M130 38 L130 64 M118 80 L130 64 L142 80 M116 48 L144 48"/></g></svg>
+          <div><span class="k">Spot-check</span><b>14 reviewers · 150 videos · 66k+ tracks</b><p><span class="big">99.2%</span> pass in 2D and 3D: ADT 99.31 · DriveTrack 99.45 · PStudio 98.79</p></div>
+        </div>
+        <div class="qc">
+          <svg viewBox="0 0 150 90" role="img" aria-label="Points inside an object mask kept, one outside removed">
+            <path d="M30 20 C 70 5, 125 18, 122 48 C 120 80, 60 86, 34 72 C 12 60, 10 30, 30 20 Z" style="fill:var(--accent-soft);stroke:var(--accent);stroke-width:2"/>
+            <g style="fill:var(--ok)"><circle cx="50" cy="40" r="5"/><circle cx="78" cy="34" r="5"/><circle cx="98" cy="54" r="5"/><circle cx="62" cy="62" r="5"/></g>
+            <g style="stroke:var(--bad);stroke-width:3;stroke-linecap:round"><path d="M128 74 l12 12 M140 74 l-12 12"/></g></svg>
+          <div><span class="k">Plausibility</span><b>A visible track stays on its object</b><p>Clip to instance masks: removes 2–3% of DriveTrack tracks that leak off the box.</p></div>
+        </div>
+        <div class="qc">
+          <svg viewBox="0 0 150 90" role="img" aria-label="A visibility timeline that flickers is dropped; a stable one is kept">
+            <g style="fill:var(--bad)"><rect x="4" y="16" width="8" height="18" rx="2"/><rect x="28" y="16" width="8" height="18" rx="2"/><rect x="40" y="16" width="8" height="18" rx="2"/><rect x="64" y="16" width="8" height="18" rx="2"/><rect x="88" y="16" width="8" height="18" rx="2"/><rect x="112" y="16" width="8" height="18" rx="2"/><rect x="124" y="16" width="8" height="18" rx="2"/></g>
+            <g style="fill:var(--ok)"><rect x="4" y="56" width="80" height="18" rx="3"/><rect x="104" y="56" width="42" height="18" rx="3"/></g></svg>
+          <div><span class="k">Motion heuristic</span><b>Visibility can't flicker</b><p>Drop a track whose visibility flips in more than 10% of frames.</p></div>
+        </div>
+      </div>
+      <!-- 3 baselines -->
+      <div class="only vis" data-only="3">
+        <table class="heat" style="margin:0 auto" aria-label="Average 3D-AJ by 2D tracker and depth source">
+          <tr><th></th><th>+ COLMAP</th><th>+ ZoeDepth</th><th>+ DepthAnything v2</th></tr>
+          <tr><th class="r">TAPIR</th><td style="background:color-mix(in srgb,var(--accent) 52%,transparent)">7.4</td><td style="background:color-mix(in srgb,var(--accent) 60%,transparent)">8.3</td><td style="background:color-mix(in srgb,var(--accent) 30%,transparent)">5.1</td></tr>
+          <tr><th class="r">CoTracker</th><td style="background:color-mix(in srgb,var(--accent) 72%,transparent)">9.3</td><td style="background:color-mix(in srgb,var(--accent) 64%,transparent)">8.7</td><td style="background:color-mix(in srgb,var(--accent) 33%,transparent)">5.4</td></tr>
+          <tr><th class="r">BootsTAPIR</th><td style="background:color-mix(in srgb,var(--accent) 72%,transparent)">9.3</td><td style="background:color-mix(in srgb,var(--accent) 65%,transparent)">8.8</td><td style="background:color-mix(in srgb,var(--accent) 34%,transparent)">5.5</td></tr>
+        </table>
+        <div class="punchl">
+          <div><b>3D-native</b>SpatialTracker 9.0</div>
+          <div><b>Floor</b>Static point: 4.9</div>
+          <div><b>Best: 9.3</b>Lots of headroom.</div>
+        </div>
+        <div class="src">Average 3D-AJ over all three domains · full_eval · median scaling</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 TV3D FINDING -->
+<section class="slide" data-title="TAPVid-3D take-aways">
+  <h2 style="font-size:50px">Take-aways from TAPVid-3D</h2>
+  <div class="row" style="flex:1;gap:44px;align-items:flex-start;margin-top:6px">
+    <ol class="steps tk" style="flex:0 0 560px">
+      <li class="frag" data-step="1" data-cur="1"><span class="sn">1</span><div><b>Capture what you want to test</b><p>Coverage over multiple domains reveals differing weaknesses and strengths.</p></div></li>
+      <li class="frag" data-step="2" data-cur="2"><span class="sn">2</span><div><b>Turn hard human labor into easy labor</b><p>3D point track <i>generation</i> → 2D point track <i>filtering</i>.</p></div></li>
+      <li class="frag" data-step="3" data-cur="3"><span class="sn">3</span><div><b>High signal + high headroom ⇒ practitioners will follow</b><p>Build it on a useful problem and the field will use it.</p></div></li>
+    </ol>
+    <div class="stack grow">
+      <div class="only vis" data-only="1">
+        <div class="kicker">3D-AJ by domain: the depth source that wins flips</div>
+        <div id="c-tv3d-flip"></div>
+        <div class="legend"><span><i style="background:var(--s1)"></i>BootsTAPIR + COLMAP</span><span><i style="background:var(--hi)"></i>BootsTAPIR + ZoeDepth</span></div>
+      </div>
+      <div class="only vis" data-only="2" style="align-self:center">
+        <div class="labor">
+          <div class="lb hard"><span class="k">Hard · humans can't</span><b>Generate</b><p>metric 3D tracks, every frame</p><span class="mk">✗</span></div>
+          <div class="ar">→</div>
+          <div class="lb easy"><span class="k">Easy · humans can</span><b>Filter</b><p>sensor-made tracks, shown in 2D + 3D</p><span class="mk">✓</span></div>
+        </div>
+        <div class="punchl" style="grid-template-columns:repeat(2,1fr)">
+          <div><b>Sensors do the work</b>LiDAR, digital twins, camera domes</div>
+          <div><b>Humans check it</b>99.2% of audited tracks pass</div>
+        </div>
+      </div>
+      <div class="only vis" data-only="3">
+        <div id="c-tv3d-gap"></div>
+        <div class="cite"><span class="v">179</span><span class="l">citations since<br>NeurIPS 2024</span><span class="v" style="margin-left:36px">2,971</span><span class="l">dataset<br>downloads</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- II.1 D4RT REVEAL -->
+<section class="slide" data-title="II · D4RT">
+  <h2 style="font-size:50px">We hill-climbed our benchmark to a <span class="acc">state-of-the-art vision model</span>.</h2>
+  <div class="paper frag reveal" data-step="1">
+    <video src="assets/d4rt_caps.mp4" muted loop playsinline preload="auto" style="height:250px;object-fit:contain;background:#fff"></video>
+    <div class="pt">
+      <div style="display:flex"><span class="award">★ CVPR 2026 Best Paper Award</span></div>
+      <h1 style="font-size:44px">Efficiently Reconstructing Dynamic Scenes One 🎯 D4RT at a Time</h1>
+      <p style="font-size:19px">Zhang, Le Moing, Koppula, Rocco, Momeni, Xie, Sun, Sukthankar, Barral, Hadsell, Ghahramani, Zisserman, Zhang, Sajjadi</p>
+    </div>
+  </div>
+</section>
+
+<!-- II.2 D4RT QUERY -->
+<section class="slide" data-title="II · D4RT query">
+  <h2 style="font-size:46px">Encode the video once. Then ask about any point, any time, any camera.</h2>
+  <svg id="d4q" viewBox="0 0 1408 640" style="width:100%;height:auto;display:block;margin-top:4px" role="img" aria-label="D4RT: a self-attention encoder turns the video into a global scene representation; a query made of a 2D point, source time, target time and camera time is embedded and decoded by a cross-attention decoder into a 3D point"></svg>
+  <i class="flagstep" data-step="1"></i><i class="flagstep" data-step="2"></i><i class="flagstep" data-step="3"></i>
+</section>
+
+<!-- II.3 D4RT RESULTS -->
+<section class="slide" data-title="II · D4RT results">
+  <h2 style="font-size:50px"><span class="hi" style="font-weight:700">D4RT</span> reached SoTA on 3D point tracking on release!</h2>
+  <div class="gal">
+    <video src="assets/d4rt_bird.mp4" muted loop playsinline preload="auto"></video>
+    <video src="assets/d4rt_ice.mp4" muted loop playsinline preload="auto"></video>
+    <video src="assets/d4rt_seats.mp4" muted loop playsinline preload="auto"></video>
+    <video src="assets/d4rt_stairs.mp4" muted loop playsinline preload="auto"></video>
+  </div>
+  <div class="row" style="gap:40px;align-items:center;margin-top:4px">
+    <div class="col" style="flex:1.25">
+      <div class="kicker">TAPVid-3D 3D-AJ · camera coordinates · with GT intrinsics</div>
+      <div id="c-d4rt"></div>
+      <div class="legend"><span><i style="background:var(--hi)"></i>D4RT</span><span><i style="background:var(--s1)"></i>SpatialTrackerV2</span><span><i style="background:var(--s2)"></i>CoTracker3 + VGGT</span><span><i style="background:var(--gray)"></i>DELTA</span><span><i style="background:var(--s3)"></i>CoTracker3 + UniDepthV2</span></div>
+    </div>
+    <div class="col grow" style="gap:22px">
+      <div class="bigstat"><span class="v">18–300×</span><span class="l">more 3D tracks per second than SpatialTrackerV2 / DELTA</span></div>
+      <div class="bigstat"><span class="v">1 model</span><span class="l">depth · 3D tracks · point clouds · camera pose</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- III.1 TAPVID-MV REVEAL -->
+<section class="slide" data-title="III · TAPVid-MV">
+  <h2 style="font-size:50px">Next: assessing the ability to <span class="acc">leverage more visual information</span>.</h2>
+  <div class="paper frag reveal" data-step="1" style="margin-top:60px">
+    <video src="assets/mv_teaser_hd.mp4" muted loop playsinline preload="auto" style="height:400px;object-fit:cover;background:#fff"></video>
+    <div class="pt"><div class="kicker">3DV 2027</div>
+      <h1 style="font-size:37px;white-space:nowrap">TAPVid-MV: A Benchmark for Tracking Any Point in 3D Across <span class="hi" style="font-weight:700">Multiple Views</span></h1>
+      <p>Koppula*, Rajič*, Rahman, Yang, Rocco, Thakwani, Kabra, Zisserman, Carreira, Tang, Doersch, Brostow</p></div>
+  </div>
+</section>
+
+<!-- 13 MV DATA -->
+<section class="slide" data-title="TAPVid-MV data">
+  <h2 style="font-size:50px">TV3D? That's so 2024! Seeking Bigger and Better Evaluations</h2>
+  <div class="row" style="flex:1;gap:40px;align-items:flex-start;margin-top:6px">
+    <ol class="steps tk" style="flex:0 0 430px">
+      <li class="frag" data-step="1" data-cur="1"><span class="sn">1</span><div><b>Multi-view video</b><p>A new capability: several synchronized, moving cameras.</p></div></li>
+      <li class="frag" data-step="2" data-cur="2"><span class="sn">2</span><div><b>More real-world domains</b><p>3 domains → 7. Better coverage of real application domains.</p></div></li>
+      <li class="frag" data-step="3" data-cur="3"><span class="sn">3</span><div><b>Higher diversity</b><p>Camera motion, lighting, object motion, camera hardware.</p></div></li>
+      <li class="frag" data-step="4" data-cur="4"><span class="sn">4</span><div><b>More labels</b><p>Pose, dense depth, semantics.</p></div></li>
+    </ol>
+    <div class="stack grow">
+      <div class="only vis" data-only="1" style="align-self:center">
+        <video class="mvv" src="assets/mv_egoexo.mp4" muted loop playsinline preload="auto"></video>
+        <div class="mvcap"><b>One moment, every camera.</b> Query a pixel in one view; the 3D track must hold in all of them.</div>
+      </div>
+      <div class="only vis" data-only="2" style="align-self:center">
+        <video class="mvv" src="assets/mv_teaser_hd.mp4" muted loop playsinline preload="auto" style="background:#fff"></video>
+        <div class="mvstats"><span><b>7</b>domains</span><span><b>238</b>sequences</span><span><b>1,004</b>camera streams</span><span><b>74,147</b>3D tracks</span></div>
+      </div>
+      <div class="only vis" data-only="3" style="align-self:center">
+        <div class="camrow"><div class="cn"><span>DROID</span><span>EgoExo4D</span><span>Harmony4D</span><span>PACE</span><span>Hi4D</span><span>Waymo</span><span>Perpetua</span></div><img src="assets/mv_camrow.jpg" alt="Camera trajectories per domain: from mostly static rigs (0.9 m of travel) to a 60.7 m driving path"></div>
+        <div class="divgrid">
+          <div><span class="k">Camera motion</span>static rigs → 60.7 m of driving</div>
+          <div><span class="k">Lighting</span>studios, offices, sports halls, city streets</div>
+          <div><span class="k">Object motion</span>rigid objects, robot arms, people, vehicles</div>
+          <div><span class="k">Camera hardware</span>Aria glasses, GoPros, wrist cams, car rigs, rendered</div>
+        </div>
+      </div>
+      <div class="only vis" data-only="4" style="align-self:center">
+        <div class="labels4">
+          <figure><img src="assets/mv_label_rgb.jpg" alt="Hi4D RGB frame"><figcaption>RGB</figcaption></figure>
+          <figure><img src="assets/title_hi4d.png" alt="Camera poses around the scene" style="background:#000;object-fit:contain"><figcaption>Camera pose</figcaption></figure>
+          <figure><img src="assets/mv_label_depth.jpg" alt="Dense depth map"><figcaption>Dense depth</figcaption></figure>
+          <figure><img src="assets/mv_label_sem.jpg" alt="Surface semantics: people versus environment"><figcaption>Semantics</figcaption></figure>
+        </div>
+        <div class="mvcap">Every frame, every view, on top of the 3D tracks.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 MV EVAL DESIGN -->
+<section class="slide" data-title="TAPVid-MV eval design">
+  <h2 style="font-size:48px">Headline metric design: <span class="acc">World 3D Average Jaccard</span></h2>
+  <p class="lede" style="font-size:23px;margin-top:-10px">One score, every query, every view, in one world frame. It only goes up if <i>all five</i> parts are right, and each part has its own debugging metric.</p>
+  <div class="row" style="gap:36px;align-items:center;flex:1">
+    <div style="flex:0 0 700px">
+      <svg viewBox="0 0 700 470" style="width:100%;height:auto;display:block" role="img" aria-label="Diagram: a query pixel in camera A is lifted with intrinsics and depth to a 3D point, tracked over time, matched from camera B, and placed in a world frame via camera poses">
+        <defs><marker id="wah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="var(--accent)"/></marker>
+          <linearGradient id="trk" x1="0" x2="1"><stop offset="0" stop-color="#2E86DE"/><stop offset=".35" stop-color="#4CB944"/><stop offset=".7" stop-color="#F3A712"/><stop offset="1" stop-color="#E4572E"/></linearGradient></defs>
+        <g font-family="IBM Plex Mono,monospace" font-size="14">
+          <!-- world axes -->
+          <g stroke="var(--faint)" stroke-width="2" fill="none"><path d="M40 440 L120 440"/><path d="M40 440 L40 360"/><path d="M40 440 L85 405"/></g>
+          <text x="48" y="462" fill="var(--faint)">world frame</text>
+          <!-- camera A -->
+          <path d="M92 250 L190 188 L208 198 L208 304 L190 296 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M92 250 L208 198 M92 250 L208 304" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
+          <text x="60" y="318" fill="var(--accent)" font-size="16">cam A (query)</text>
+          <!-- camera B -->
+          <path d="M640 168 L540 110 L524 122 L524 226 L540 218 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M640 168 L524 122 M640 168 L524 226" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
+          <text x="566" y="250" fill="var(--accent)" font-size="16">cam B</text>
+          <!-- trajectory -->
+          <path d="M268 360 C 300 300, 350 360, 390 312 S 450 250, 482 280" fill="none" stroke="url(#trk)" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="390" cy="312" r="10" fill="#F3A712" stroke="var(--ink)" stroke-width="2"/>
+          <!-- ray A -> X (depth) -->
+          <path d="M92 250 L390 312" stroke="var(--hi)" stroke-width="2.5" fill="none"/>
+          <circle cx="200" cy="272" r="6" fill="#F3A712" stroke="var(--ink)" stroke-width="1.5"/>
+          <path d="M215 294 L382 330" stroke="var(--hi)" stroke-width="1.5" stroke-dasharray="2 4"/>
+          <text x="282" y="330" fill="var(--hi)" font-size="18" font-style="italic">Z</text>
+          <!-- focal length -->
+          <path d="M92 250 L199 250" stroke="#9B7FE6" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="146" y="270" fill="#9B7FE6" font-size="18" font-style="italic">f</text>
+          <!-- ray B -> X (cross view) -->
+          <path d="M640 168 L398 306" stroke="#E84393" stroke-width="2.5" stroke-dasharray="9 6" fill="none"/>
+          <text x="450" y="237" fill="#E84393" font-size="15" text-anchor="end">same point?</text>
+          <!-- pose arrow -->
+          <path d="M150 170 C 260 40, 470 30, 585 98" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#wah)"/>
+          <text x="330" y="60" fill="var(--accent)" font-size="18" text-anchor="middle">[ R | t ]</text>
+          <!-- markers -->
+          <g font-family="IBM Plex Sans Condensed,sans-serif" font-weight="700" font-size="17" text-anchor="middle">
+            <circle cx="118" cy="196" r="15" fill="#9B7FE6"/><text x="118" y="202" fill="#111">1</text>
+            <circle cx="300" cy="296" r="15" fill="var(--hi)"/><text x="300" y="302" fill="#111">2</text>
+            <circle cx="300" cy="390" r="15" fill="#4CB944"/><text x="300" y="396" fill="#111">3</text>
+            <circle cx="470" cy="232" r="15" fill="#E84393"/><text x="470" y="238" fill="#111">4</text>
+            <circle cx="330" cy="92" r="15" fill="var(--accent)"/><text x="330" y="98" fill="#111">5</text>
+          </g>
+          <text x="268" y="390" fill="var(--faint)" text-anchor="end">track over time</text>
+        </g>
+      </svg>
+    </div>
+    <div class="wparts grow">
+      <div class="wp"><span class="n" style="background:#9B7FE6">1</span><div><b>Intrinsics</b><span class="m">K · mean ray-angle error (°)</span></div></div>
+      <div class="wp"><span class="n" style="background:var(--hi)">2</span><div><b>Depth</b><span class="m">D<sub>C</sub> / D<sub>W</sub> · depth AUC @ 10 cm</span></div></div>
+      <div class="wp"><span class="n" style="background:#4CB944">3</span><div><b>Within-view tracking</b><span class="m">Q · 3D-AJ in the query view</span></div></div>
+      <div class="wp"><span class="n" style="background:#E84393">4</span><div><b>Cross-view correspondence</b><span class="m">N · 3D-AJ in the other views</span></div></div>
+      <div class="wp"><span class="n" style="background:var(--accent)">5</span><div><b>Camera pose</b><span class="m">E<sub>C</sub> / E<sub>W</sub> · pose AUC @ 30°</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 MV FINDINGS -->
+<section class="slide" data-title="TAPVid-MV findings">
+  <h2 style="font-size:50px">A good benchmark enables <span class="acc">surprising findings</span></h2>
+  <div class="row" style="flex:1;gap:40px;align-items:flex-start;margin-top:6px">
+    <ol class="steps tk" style="flex:0 0 470px">
+      <li class="frag" data-step="1" data-cur="1"><span class="sn">1</span><div><b>Complex, dedicated multi-view trackers … lose out to much simpler monocular ones!</b><p>Best overall: TAPIP3D, a single-view 3D tracker (δ<sub>W</sub> 23.4).</p></div></li>
+      <li class="frag" data-step="2" data-cur="2"><span class="sn">2</span><div><b>The reconstruction, not the tracker, sets the score</b><p>20 trackers from four years land within 3.1 points on the same geometry.</p></div></li>
+      <li class="frag" data-step="3" data-cur="3"><span class="sn">3</span><div><b>Cross-view correspondence is unsolved</b><p>Nearly every method drops in the views it wasn't queried in.</p></div></li>
+    </ol>
+    <div class="stack grow">
+      <div class="only vis" data-only="1" style="align-self:center">
+        <div class="kicker">3D accuracy δ · Q query view · N other views · W world</div>
+        <div id="c-mv-head"></div>
+        <div class="legend"><span><i style="background:var(--s3)"></i>Q</span><span><i style="background:var(--s2)"></i>N</span><span><i style="background:var(--s1)"></i>W</span></div>
+      </div>
+      <div class="only vis" data-only="2" style="align-self:center">
+        <div class="kicker">TAPIP3D δ<sub>W</sub>: shared reconstruction → ground-truth depth</div>
+        <div id="c-mv-gt"></div>
+        <div class="legend"><span><i style="background:var(--s2)"></i>shared reconstruction</span><span><i style="background:var(--hi)"></i>GT depth</span></div>
+      </div>
+      <div class="only vis" data-only="3" style="align-self:center">
+        <div class="kicker">AllTracker (best lifted 2D tracker): query view Q → other views N</div>
+        <div id="c-mv-qn"></div>
+        <div class="legend"><span><i style="background:var(--s3)"></i>Q · query view</span><span><i style="background:var(--bad)"></i>N · other views</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IV.1 MULTI-SURFACE REVEAL -->
+<section class="slide" data-title="IV · Multi-surface TAP">
+  <h2 style="font-size:50px">Can't hand-label it? <span class="acc">Scale 4D data with agentic LLM pipelines.</span></h2>
+  <div class="paper frag reveal" data-step="1" style="margin-top:20px">
+    <div class="pan"><img src="assets/ms_scenes_hd.jpg" alt="Gallery of LLM-generated Blender scenes, each rendered from several cameras: gymnastics hall, beach pavilion, jellyfish lake, market square, fox-spirit market, tram depot, mountain sheepfold, Titan dunes, agora ruins"></div>
+    <div class="pt"><div style="display:flex"><span class="award" style="color:var(--lav);border-color:var(--lav);background:var(--lav-soft)">Under review</span></div>
+      <h1 style="font-size:40px"><span class="acc">Snowglobe:</span> Building 100K High-Quality Dynamic Scenes with Frontier LLMs</h1>
+      <p>Tracking every surface along a query ray, with data and evals no human could label.</p></div>
+  </div>
+</section>
+
+<!-- 19 MS TASK -->
+<section class="slide" data-title="Multi-surface task">
+  <h2><span style="display:block;font-size:30px;font-weight:500;color:var(--muted);margin-bottom:8px">The vision problem that motivated us:</span>A query pixel defines a ray. Track every surface it crosses.</h2>
+  <svg id="raysvg" viewBox="0 0 1408 600" style="width:100%;height:auto;display:block" role="img" aria-label="Animation: a ray shoots from the camera through a query pixel, hitting a person's front at 7.1 m and back at 7.5 m, then a cabinet's front at 12.6 m; each hit fills one output slot"></svg>
+</section>
+
+<!-- 20 MS DATA -->
+<section class="slide" data-title="Agentic data pipeline">
+  <h2>Code controls diversity and correctness; LLMs do the creative work</h2>
+  <div class="pipe">
+    <div class="stepbox"><span class="who code">code</span><p>Sample a spec from a grammar: setting, motion level, one of 48 hard scenarios (glass, refraction, porous occluders…)</p></div>
+    <div class="arrow">→</div>
+    <div class="stepbox"><span class="who llm">small LLM + verifier</span><p>Write the spec as a prompt; a verifier agent rejects misaligned or underspecified ones</p></div>
+    <div class="arrow">→</div>
+    <div class="stepbox"><span class="who llm">strong LLM</span><p>Write a Blender script from 3,488 assets and 797 mocap clips</p></div>
+    <div class="arrow">→</div>
+    <div class="stepbox"><span class="who llm">planner agent</span><p>Up to 8 moving cameras on 16 families of 6-DoF paths</p></div>
+    <div class="arrow">→</div>
+    <div class="stepbox"><span class="who code">code</span><p>Reject floating or interpenetrating objects, sliding textures, empty views</p></div>
+    <div class="arrow">→</div>
+    <div class="stepbox"><span class="who code">ray casting</span><p>Every surface along each query ray, every frame, every camera</p></div>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1.1"><figure><img src="assets/ms_fig_data_scenes.jpg" alt="Five generated scenes from three cameras each, with top-down plots of camera paths"></figure></div>
+    <div class="col grow" style="gap:18px">
+      <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+        <div class="stat"><span class="v">14,916</span><span class="l">dynamic scenes, 8 cameras</span></div>
+        <div class="stat"><span class="v">39.7M</span><span class="l">labeled query rays</span></div>
+        <div class="stat"><span class="v">2.96</span><span class="l">targets per ray on average</span></div>
+        <div class="stat"><span class="v">81%</span><span class="l">of rays with ≥ 2 targets</span></div>
+      </div>
+      <div class="kicker">Where the targets are</div>
+      <div id="c-ms-mix"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 21 MS METRICS -->
+<section class="slide" data-title="Multi-surface metrics">
+  <h2>One headline score, two diagnostics that split it</h2>
+  <div class="row">
+    <div class="panel grow" style="border-color:var(--hi)"><div class="kicker">headline</div><h3>Existence-aware AJ (EA-AJ)</h3>
+      <ol class="small" style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px">
+        <li>Keep predictions the model says exist.</li>
+        <li>Hungarian-match them to true surfaces by median position error.</li>
+        <li>Score matched pairs at every frame, hidden ones included.</li>
+      </ol>
+      <p class="mono" style="font-size:18px;text-align:center;padding:4px 0">EA-AJ = ⅕ Σ<sub>d</sub> TP<sub>d</sub> / (|G| + |P| − TP<sub>d</sub>)</p>
+      <p class="small">A missed surface adds to |G|; an invented one adds to |P|. Score 1 only if you find every surface and nothing else.</p></div>
+    <div class="panel grow"><div class="kicker">diagnostic · whether</div><h3>Detection AP</h3>
+      <p class="small">Rank all predictions by existence score, as in object detection. A hit is a median error ≤ 4 px at 256² (or 10% of depth in 3D). Needs no cutoff.</p>
+      <p class="small"><b>Answers:</b> does it find the surfaces and rank them above inventions?</p></div>
+    <div class="panel grow"><div class="kicker">diagnostic · where</div><h3>Localization δ<sub>avg</sub></h3>
+      <p class="small">Hungarian-match over all predictions, ignoring existence, then TAP-Vid's fraction within thresholds.</p>
+      <p class="small"><b>Answers:</b> when it tracks a surface, how close is it?</p></div>
+  </div>
+  <p class="small">Both diagnostics are also reported <b>beyond the first visible surface</b>, where any single-surface tracker scores exactly 0, and by slice: glass, behind glass, fronts, backs, moving, static, hidden-then-seen, never seen.</p>
+</section>
+
+<!-- 22 MS RESULTS -->
+<section class="slide" data-title="Multi-surface results">
+  <h2>Surface slots add surfaces without losing the first</h2>
+  <div class="row">
+    <div class="col" style="flex:1.45">
+      <div id="c-ms-main"></div>
+      <div class="legend"><span><i style="background:var(--s1)"></i>EA-AJ (2D)</span><span><i style="background:var(--hi)"></i>Detection AP beyond 1st</span><span><i style="background:var(--s3)"></i>Localization beyond 1st</span></div>
+    </div>
+    <div class="col grow" style="gap:16px">
+      <div class="panel"><div class="kicker">Four rows per tracker, on purpose</div>
+        <p class="small"><b>Pretrained</b> · <b>copied to all slots</b> (the MS model at init) · <b>single-surface control</b> fine-tuned on the same data · <b>MS</b>. The control separates the gain from the slots from the gain from the data.</p></div>
+      <p class="small">ARROW-MS (3D): EA-AJ .087 → .133 and 3D detection AP beyond the first surface 0 → .541 over the control. Slot-0 AJ matches or beats the control (2D .592 vs .577), and 2D tracking on real TAP-Vid DAVIS does not degrade.</p>
+      <p class="small">Recipe: K = 8 DETR-style slots, read-only slot 0 with a distillation "hold" loss, cross-slot attention, Hungarian slot assignment.</p>
+    </div>
+  </div>
+  <div class="src">Held-out test scenes; existence cutoffs chosen on validation. Pre-camera-ready numbers.</div>
+</section>
+
+<!-- 23 MS AUDIT -->
+<section class="slide" data-title="Auditing our own metrics">
+  <h2>Four things an audit of our own numbers caught, and the fix for each</h2>
+  <div class="row" style="gap:28px">
+    <div class="panel grow"><div class="kicker">1 · a metric rewarded doing nothing</div>
+      <p class="small">Copying the first track into all 8 slots scores <b class="hi">.588</b> localization beyond the first surface with <b>.006</b> detection AP. Hidden surfaces often project near the visible one.</p>
+      <p class="small"><b>Fix:</b> never report localization without detection; keep the untrained copy as a reference row.</p></div>
+    <div class="panel grow"><div class="kicker">2 · a slice that never moved</div>
+      <p class="small">The behind-glass slice was flat for every model, single-surface controls included. Cause: glass missing from instance masks, so slot 0 leaked into the slice.</p>
+      <p class="small"><b>Fix:</b> sanity-check every slice against a model that should score 0 on it.</p></div>
+    <div class="panel grow"><div class="kicker">3 · rankings inside the noise</div>
+      <p class="small">Five CoTracker3 variants spanned 2D EA-AJ .309 to .316, and their order changed between test sets.</p>
+      <p class="small"><b>Fix:</b> paired bootstrap intervals over scenes; no design credit without a seed spread.</p></div>
+    <div class="panel grow"><div class="kicker">4 · a fix that only helped one family</div>
+      <p class="small">An existence verifier raised CoTracker3's detection AP beyond the first surface (.342 → .398) but cut ARROW's EA-AJ (.313 → .295).</p>
+      <p class="small"><b>Fix:</b> report both. A component's effect is a property of the pair, not the component.</p></div>
+  </div>
+  <div class="callout"><p>Degenerate baselines are tests for the metric. If "copy", "static" or "front of the same object" scores well, the metric is measuring something else.</p></div>
+</section>
+
+<!-- 24 MS vs RECON -->
+<section class="slide" data-title="vs 4D reconstruction">
+  <h2>A feed-forward tracker vs. optimization given ground-truth cameras and depth</h2>
+  <div class="row">
+    <div class="col" style="flex:1.1">
+      <div class="kicker">time per 75-frame clip, one A100 (log scale)</div>
+      <div id="c-ms-time"></div>
+      <table class="t" style="font-size:19px">
+        <tr><th></th><th>EA-AJ 2D</th><th>EA-AJ 3D</th><th>Det AP beyond 3D</th><th>backs δ<sub>avg</sub> 3D</th></tr>
+        <tr class="ours"><td>ARROW-MS (RGB only)</td><td>.434</td><td>.178</td><td>.680</td><td>.374</td></tr>
+        <tr><td>Shape of Motion</td><td>.250</td><td>.130</td><td>.362</td><td>.292</td></tr>
+        <tr><td>Lift4D, true depth scale</td><td class="g">–</td><td class="g">–</td><td class="g">–</td><td><b>.381</b></td></tr>
+        <tr><td class="g">front of same object</td><td class="g">–</td><td class="g">–</td><td class="g">–</td><td class="g">.336</td></tr>
+      </table>
+      <p class="tiny">10 test scenes, 1,986 rays, 95 object backs. Baselines receive GT cameras, metric depth and masks. Shape of Motion gets the first visible surface more accurate in 3D (slot-0 AJ .365 vs .232).</p>
+    </div>
+    <div class="col grow">
+      <figure><img src="assets/ms_compare3.jpg" alt="Three clips comparing ARROW with ARROW-MS, which tracks backs of people, a van, and a curtain in front of a panel"><figcaption>ARROW tracks one surface; ARROW-MS also tracks backs, the van behind the man, and a see-through curtain.</figcaption></figure>
+      <div class="kicker">Still hard</div>
+      <p class="small">3D depth precision of hidden surfaces · refraction (behind-glass barely improves) · surfaces never seen in the clip · moving vs static (detection .479 vs .628).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 25 LESSONS -->
+<section class="slide" data-title="Lessons for evals">
+  <h2>What carries over to evaluating LLMs and agents</h2>
+  <div class="lessons">
+    <div class="h"></div><div class="h">Principle · where it showed up here</div><div class="h">The same move in LLM / agent evals</div>
+    <div class="n">1</div><div><span class="p">Get labels from a privileged signal, then audit them.</span> LiDAR, kinematics, simulation; 99.2% audited pass rate.</div><div>Executable checks and simulated environments as graders, with a measured human spot-check of the grader itself.</div>
+    <div class="n">2</div><div><span class="p">Decompose the score so a failure names a cause.</span> Q / N / W; EA-AJ split into detection and localization.</div><div>Separate retrieval, planning and execution in agent traces; score intermediate steps, not only the final state.</div>
+    <div class="n">3</div><div><span class="p">Hold the substrate fixed.</span> One shared reconstruction for every tracker.</div><div>Compare models under one harness, tools and prompt; compare harnesses under one model.</div>
+    <div class="n">4</div><div><span class="p">Run degenerate baselines against the metric.</span> Static points, copy-to-all-slots, front-of-object.</div><div>Empty patch, always-refuse, copy-the-test: if they score, the grader is being gamed.</div>
+    <div class="n">5</div><div><span class="p">Flag training overlap in the table.</span> Gray cells where a method saw the source data.</div><div>Contamination tracking per item and per model, shown next to the score.</div>
+    <div class="n">6</div><div><span class="p">Variance before verdicts.</span> Paired bootstrap over scenes; seed spread.</div><div>Paired intervals over tasks, several samples per task; small suites rank inside their noise.</div>
+    <div class="n">7</div><div><span class="p">LLM-generated data needs code-level verifiers.</span> Grammar for coverage, checks for validity.</div><div>Synthetic task and environment generation for RL: verifiers and filters are most of the work.</div>
+  </div>
+</section>
+
+<!-- 26 DISCUSSION -->
+<section class="slide" data-title="Discussion">
+  <h2>Fun questions along the way</h2>
+  <div class="row" style="gap:28px;flex-wrap:wrap">
+    <div class="panel grow" style="flex-basis:40%"><div class="kicker">set-valued answers</div><p style="font-size:22px">EA-AJ scores a set of unknown size. What's the right analogue for agent tasks with several acceptable outcomes, or none?</p></div>
+    <div class="panel grow" style="flex-basis:40%"><div class="kicker">cost</div><p style="font-size:22px">Baselines cost ~10,000 GPU-hours here. What is the smallest eval that preserves the ranking, and how do you verify that it does?</p></div>
+    <div class="panel grow" style="flex-basis:40%"><div class="kicker">composed vs unified</div><p style="font-size:22px">A pipeline of specialists beat every unified model on TAPVid-MV. When should a lab measure the system, and when the model?</p></div>
+    <div class="panel grow" style="flex-basis:40%"><div class="kicker">synthetic distribution</div><p style="font-size:22px">When LLMs write the environments, when does the generator's taste become the thing models overfit to?</p></div>
+  </div>
+</section>
+
+<span id="bar"></span>
+</div></div>
+
+<div id="ui">
+  <button id="bPrev" type="button" aria-label="Previous slide">←</button>
+  <button id="bCount" type="button" aria-label="Slide number">1 / 1</button>
+  <button id="bNext" type="button" aria-label="Next slide">→</button>
+  <button id="bNotes" type="button" aria-label="Toggle speaker notes">notes</button>
+  <button id="bFull" type="button" aria-label="Fullscreen">⛶</button>
+</div>
+<div id="notesPanel" hidden></div>
+
+<script>
+(function(){
+/* ---------- charts ---------- */
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e}
+function svg(w,h,label){return el("svg",{class:"chart",viewBox:`0 0 ${w} ${h}`,role:"img","aria-label":label})}
+
+/* horizontal bars: rows [{label,value,color,note}] */
+function hbars(id,{rows,max,fmt=v=>v,ticks=[],labelW=300,w=760,rowH=66,label}){
+  const top=10,h=top+rows.length*rowH+34,x0=labelW,x1=w-60,sx=v=>x0+(x1-x0)*v/max;
+  const s=svg(w,h,label);
+  ticks.forEach(t=>{s.appendChild(el("line",{x1:sx(t),x2:sx(t),y1:top,y2:h-30,class:"axis","stroke-dasharray":t?"3 4":""}));s.appendChild(el("text",{x:sx(t),y:h-8,"text-anchor":"middle",class:"tick"},t))});
+  rows.forEach((r,i)=>{const y=top+i*rowH+8;
+    s.appendChild(el("text",{x:x0-14,y:y+rowH/2-4,"text-anchor":"end",class:"lab"},r.label));
+    s.appendChild(el("rect",{x:x0,y:y,width:Math.max(1,sx(r.value)-x0),height:rowH-18,rx:3,fill:r.color}));
+    s.appendChild(el("text",{x:sx(r.value)+8,y:y+rowH/2-4,class:"val"},fmt(r.value)));});
+  document.getElementById(id).appendChild(s);
+}
+/* grouped vertical bars: cats [], series [{name,color,values[]}] */
+function grouped(id,{cats,series,max,ticks,fmt=v=>v,w=760,h=330,label,gapRatio=.28}){
+  const L=46,R=10,T=14,B=46,cw=(w-L-R)/cats.length,bw=cw*(1-gapRatio)/series.length,sy=v=>T+(h-T-B)*(1-v/max);
+  const s=svg(w,h,label);
+  ticks.forEach(t=>{s.appendChild(el("line",{x1:L,x2:w-R,y1:sy(t),y2:sy(t),class:"axis","stroke-dasharray":t?"3 4":""}));s.appendChild(el("text",{x:L-8,y:sy(t)+5,"text-anchor":"end",class:"tick"},fmt(t)))});
+  cats.forEach((c,ci)=>{const gx=L+ci*cw+cw*gapRatio/2;
+    series.forEach((se,si)=>{const v=se.values[ci];if(v==null)return;const x=gx+si*bw;
+      s.appendChild(el("rect",{x:x+1,y:sy(v),width:bw-2,height:Math.max(1,sy(0)-sy(v)),rx:2,fill:se.color}));
+      s.appendChild(el("text",{x:x+bw/2,y:sy(v)-6,"text-anchor":"middle",class:"val",style:"font-size:13px"},fmt(v)));});
+    const lines=String(c).split("\n");lines.forEach((ln,li)=>s.appendChild(el("text",{x:L+ci*cw+cw/2,y:h-B+22+li*18,"text-anchor":"middle",class:"lab",style:"font-size:16px"},ln)));});
+  document.getElementById(id).appendChild(s);
+}
+/* dumbbell: rows [{label,a,b}] */
+function dumbbell(id,{rows,max,ticks,ca,cb,w=760,rowH=84,labelW=170,label,fmt=v=>v}){
+  const T=10,h=T+rows.length*rowH+34,x0=labelW,x1=w-40,sx=v=>x0+(x1-x0)*v/max;
+  const s=svg(w,h,label);
+  ticks.forEach(t=>{s.appendChild(el("line",{x1:sx(t),x2:sx(t),y1:T,y2:h-30,class:"axis","stroke-dasharray":t?"3 4":""}));s.appendChild(el("text",{x:sx(t),y:h-8,"text-anchor":"middle",class:"tick"},t))});
+  rows.forEach((r,i)=>{const y=T+i*rowH+rowH/2;
+    s.appendChild(el("text",{x:x0-16,y:y+6,"text-anchor":"end",class:"lab"},r.label));
+    s.appendChild(el("line",{x1:sx(r.a),x2:sx(r.b),y1:y,y2:y,stroke:"var(--faint)","stroke-width":3}));
+    s.appendChild(el("circle",{cx:sx(r.a),cy:y,r:9,fill:ca}));
+    s.appendChild(el("circle",{cx:sx(r.b),cy:y,r:9,fill:cb}));
+    const left=r.a<r.b;
+    s.appendChild(el("text",{x:sx(r.a)+(left?-14:14),y:y-14,"text-anchor":left?"end":"start",class:"val"},fmt(r.a)));
+    s.appendChild(el("text",{x:sx(r.b)+(left?14:-14),y:y-14,"text-anchor":left?"start":"end",class:"val"},fmt(r.b)));});
+  document.getElementById(id).appendChild(s);
+}
+
+hbars("c-tv3d-gap",{label:"BootsTAPIR 3D-AJ between 5.5 and 9.3 versus a 4.9 static baseline, on a 0 to 100 scale",max:100,ticks:[0,25,50,75,100],labelW:270,w:720,
+  rows:[{label:"3D-AJ + COLMAP",value:9.3,color:"var(--hi)"},
+        {label:"3D-AJ + ZoeDepth",value:8.8,color:"var(--hi)"},{label:"3D-AJ + DepthAnythingV2",value:5.5,color:"var(--hi)"},
+        {label:"static-point baseline",value:4.9,color:"var(--gray)"}]});
+grouped("c-tv3d-flip",{label:"3D-AJ by subset for COLMAP and ZoeDepth depth",cats:["Aria (indoor ego)","DriveTrack","Panoptic Studio"],max:14,ticks:[0,4,8,12],w:720,h:400,
+  series:[{name:"COLMAP",color:"var(--s1)",values:[9.1,11.8,6.9]},{name:"ZoeDepth",color:"var(--hi)",values:[9.9,5.4,11.3]}]});
+grouped("c-d4rt",{label:"TAPVid-3D AJ by subset with ground-truth intrinsics for D4RT and baselines",cats:["DriveTrack","ADT","Panoptic Studio"],max:.4,ticks:[0,.1,.2,.3,.4],fmt:v=>v===0?"0":v.toFixed(v>=.1&&String(v).length<=3?1:3).replace(/^0/,""),w:800,h:300,gapRatio:.2,
+  series:[{name:"D4RT",color:"var(--hi)",values:[.304,.307,.372]},{name:"SpTrV2",color:"var(--s1)",values:[.195,.303,.175]},
+          {name:"CoT3+VGGT",color:"var(--s2)",values:[.245,.175,.215]},{name:"DELTA",color:"var(--gray)",values:[.170,.199,.175]},{name:"CoT3+UniDepth",color:"var(--s3)",values:[.147,.173,.205]}]});
+grouped("c-mv-head",{label:"Overall Q N W accuracy for five methods",cats:["OmniX\nMV joint","MV-TAP\nMV 2D","MVTracker\nMV 3D","CoWTracker\nmono 2D","TAPIP3D\nmono 3D"],max:30,ticks:[0,10,20,30],w:860,h:440,gapRatio:.22,
+  series:[{name:"Q",color:"var(--s3)",values:[13.7,23.5,24.7,27.2,27.3]},{name:"N",color:"var(--s2)",values:[9.3,18.7,21.7,18.6,21.5]},{name:"W",color:"var(--s1)",values:[10.1,20.0,22.8,21.5,23.4]}]});
+dumbbell("c-mv-gt",{label:"TAPIP3D world accuracy with shared reconstruction versus ground truth depth",max:60,ticks:[0,20,40,60],ca:"var(--s2)",cb:"var(--hi)",w:720,labelW:150,
+  rows:[{label:"DROID",a:5.8,b:39.3},{label:"Perpetua",a:15.5,b:43.2},{label:"Hi4D",a:20.5,b:53.8},{label:"PACE",a:44.1,b:52.9}]});
+dumbbell("c-mv-qn",{label:"AllTracker query view versus other views accuracy",max:70,ticks:[0,20,40,60],ca:"var(--s3)",cb:"var(--bad)",w:720,labelW:230,
+  rows:[{label:"Overall",a:28.1,b:18.8},{label:"Perpetua",a:25.9,b:6.3},{label:"Waymo",a:15.3,b:4.3},{label:"Perpetua, GT depth",a:63.4,b:19.2}]});
+/* stacked composition bar */
+(function(){const parts=[["first visible",34,"var(--ink)"],["occluded at query, seen later",33,"var(--front)"],["backs of objects",18,"var(--back)"],["seen through glass / water",14,"var(--s3)"]];
+  const w=720,h=118,s=svg(w,h,"Share of targets by type");let x=0;const tot=99;
+  parts.forEach(([n,v,c],i)=>{const bw=w*v/tot;s.appendChild(el("rect",{x:x,y:8,width:bw-3,height:38,rx:3,fill:c}));
+    s.appendChild(el("text",{x:x+6,y:72,class:"val",style:"font-size:16px;font-weight:500"},v+"%"));
+    s.appendChild(el("text",{x:x+6,y:94,class:"lab",style:"font-size:14px;fill:var(--muted)"},n));x+=bw;});
+  document.getElementById("c-ms-mix").appendChild(s);})();
+
+grouped("c-ms-main",{label:"EA-AJ, detection AP and localization beyond the first surface for four variants of each tracker",
+  cats:["CoT3\npretrained","CoT3\ncopied","CoT3\ncontrol","CoT3-MS","ARROW\npretrained","ARROW\ncopied","ARROW\ncontrol","ARROW-MS"],max:.9,ticks:[0,.3,.6,.9],
+  fmt:v=>v===0?"0":v.toFixed(3).replace(/^0/,""),w:900,h:470,gapRatio:.18,
+  series:[{name:"EA-AJ",color:"var(--s1)",values:[.246,.220,.253,.310,.220,.220,.229,.373]},
+          {name:"Det AP beyond",color:"var(--hi)",values:[0,.006,0,.385,0,.014,0,.577]},
+          {name:"Loc beyond",color:"var(--s3)",values:[0,.588,0,.793,0,.545,0,.799]}]});
+
+/* log time bars */
+(function(){const rows=[["CoTracker3-MS","0.8 s",.8,"var(--hi)"],["ARROW-MS","5.7 s",5.7,"var(--hi)"],["Shape of Motion","23 min",1380,"var(--s2)"],["Lift4D (per object)","87 min",5220,"var(--s2)"]];
+  const w=720,rowH=40,labelW=200,h=rows.length*rowH+36,x0=labelW,x1=w-90,lo=Math.log10(.5),hi=Math.log10(10000),sx=v=>x0+(x1-x0)*(Math.log10(v)-lo)/(hi-lo);
+  const s=svg(w,h,"Runtime per clip on a log scale");
+  [[1,"1 s"],[10,"10 s"],[60,"1 min"],[600,"10 min"],[3600,"1 h"]].forEach(([t,l])=>{s.appendChild(el("line",{x1:sx(t),x2:sx(t),y1:4,y2:h-28,class:"axis","stroke-dasharray":"3 4"}));s.appendChild(el("text",{x:sx(t),y:h-8,"text-anchor":"middle",class:"tick"},l))});
+  rows.forEach(([n,l,v,c],i)=>{const y=6+i*rowH;s.appendChild(el("text",{x:x0-12,y:y+20,"text-anchor":"end",class:"lab",style:"font-size:16px"},n));
+    s.appendChild(el("rect",{x:x0,y:y+4,width:sx(v)-x0,height:rowH-14,rx:3,fill:c}));s.appendChild(el("text",{x:sx(v)+8,y:y+20,class:"val"},l));});
+  document.getElementById("c-ms-time").appendChild(s);})();
+
+/* ---------- tracking-context animation ---------- */
+(function(){
+  const NS="http://www.w3.org/2000/svg";
+  const s2=document.getElementById("trk2d"),s3=document.getElementById("trk3d"),sm=document.getElementById("trkmv");
+  if(!s2)return;
+  const cols=["#E4572E","#F3A712","#4CB944","#2E86DE","#8E44AD","#E84393"];
+  const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const nrm=a=>{const l=Math.hypot(...a);return[a[0]/l,a[1]/l,a[2]/l]};
+  function cam(eye,tgt,f,W,H){const fw=nrm(sub(tgt,eye)),r=nrm(cross(fw,[0,0,1])),u=cross(r,fw);
+    return{eye,fw,r,u,p(P){const d=sub(P,eye),z=dot(d,fw);return[W/2+f*dot(d,r)/z,H/2-f*dot(d,u)/z,z]}}}
+  const C=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+  const EDG=[[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  const FACES=[[[0,1,2,3],[0,0,-1]],[[4,5,6,7],[0,0,1]],[[0,1,5,4],[0,-1,0]],[[2,3,7,6],[0,1,0]],[[1,2,6,5],[1,0,0]],[[0,3,7,4],[-1,0,0]]];
+  const TRK=[4,5,6,7,1,2];   // tracked corners
+  const PER=8.0, HIST=0.85, SZ=.42;
+  function pose(t){const w=2*Math.PI*t/PER;
+    const c=[1.0*Math.sin(w),0.45*Math.sin(2*w),SZ+0.05+0.45*Math.abs(Math.sin(1.5*w))];
+    const th=0.9*w*1.0, ph=0.25*Math.sin(w);
+    const rot=v=>{let[x,y,z]=v;let y1=y*Math.cos(ph)-z*Math.sin(ph),z1=y*Math.sin(ph)+z*Math.cos(ph);y=y1;z=z1;
+      return[x*Math.cos(th)-y*Math.sin(th),x*Math.sin(th)+y*Math.cos(th),z]};
+    return{c,rot}}
+  function corners(t){const{c,rot}=pose(t);return C.map(v=>{const q=rot(v.map(a=>a*SZ));return[q[0]+c[0],q[1]+c[1],q[2]+c[2]]})}
+  function visible(t,k,eye){const{c,rot}=pose(t);const P=corners(t);
+    return FACES.some(([ids,n])=>ids.includes(k)&&dot(rot(n),sub(eye,P[k]))>0)}
+  const camA=[0,-6.6,2.3],camB=[4.4,3.0,2.1],camC=[-4.4,3.0,2.1];
+  const imA=cam(camA,[0,0,.45],520,440,250);
+  const el=(svg,tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e};
+  const css=getComputedStyle(document.documentElement);
+  const tok=n=>css.getPropertyValue(n).trim()||"#888";
+  function grid(svg,cm,col){for(let i=-3;i<=3;i++){for(const [a,b] of [[[i*.6,-1.8,0],[i*.6,1.8,0]],[[-1.8,i*.6,0],[1.8,i*.6,0]]]){
+      const p=cm.p(a),q=cm.p(b);if(p[2]>0&&q[2]>0)el(svg,"line",{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:col,"stroke-width":1})}}}
+  function cube(svg,cm,P,col){for(const[a,b]of EDG){const p=cm.p(P[a]),q=cm.p(P[b]);el(svg,"line",{x1:p[0],y1:p[1],x2:q[0],y2:q[1],stroke:col,"stroke-width":1.6,"stroke-linejoin":"round"})}}
+  function frustum(svg,cm,eye,col,sz){const fw=nrm(sub([0,0,.55],eye)),r=nrm(cross(fw,[0,0,1])),u=cross(r,fw);
+    const c=[eye[0]+fw[0]*sz,eye[1]+fw[1]*sz,eye[2]+fw[2]*sz];
+    const k=[[1,1],[-1,1],[-1,-1],[1,-1]].map(([a,b])=>[c[0]+(r[0]*a*.62+u[0]*b*.42)*sz,c[1]+(r[1]*a*.62+u[1]*b*.42)*sz,c[2]+(r[2]*a*.62+u[2]*b*.42)*sz]);
+    const e=cm.p(eye),K=k.map(x=>cm.p(x));
+    K.forEach(q=>el(svg,"line",{x1:e[0],y1:e[1],x2:q[0],y2:q[1],stroke:col,"stroke-width":1.5}));
+    el(svg,"polygon",{points:K.map(q=>q[0]+","+q[1]).join(" "),fill:col,"fill-opacity":.12,stroke:col,"stroke-width":1.5});return e}
+  function trails(svg,cm,t,flat){TRK.forEach((k,j)=>{let d="";const n=24;
+      for(let i=0;i<=n;i++){const tt=t-HIST*(1-i/n);const P=corners(tt)[k];const q=cm.p(P);d+=(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)}
+      el(svg,"path",{d,fill:"none",stroke:cols[j],"stroke-width":2.4,"stroke-opacity":.85,"stroke-linecap":"round"})})}
+  function heads(svg,cm,t,P,eyeVis){TRK.forEach((k,j)=>{const q=cm.p(P[k]);const vis=eyeVis?visible(t,k,eyeVis):true;
+      el(svg,"circle",vis?{cx:q[0],cy:q[1],r:5.5,fill:cols[j]}:{cx:q[0],cy:q[1],r:5,fill:"none",stroke:cols[j],"stroke-width":2.2})})}
+  function frame(ts){const t=ts/1000;
+    const ink=tok("--ink"),rule=tok("--rule"),faint=tok("--faint"),acc=tok("--accent"),gray=tok("--gray");
+    const P=corners(t);
+    // 2D
+    s2.textContent="";grid(s2,imA,rule);cube(s2,imA,P,faint);trails(s2,imA,t);heads(s2,imA,t,P,camA);
+    el(s2,"text",{x:14,y:238,"font-family":"IBM Plex Mono,monospace","font-size":13,fill:faint}).textContent="camera A · image";
+    // 3D (slow orbit)
+    const az=-0.75+0.3*Math.sin(t*0.25),eye=[8.4*Math.cos(az),8.4*Math.sin(az),4.0];
+    const ob=cam(eye,[0,-1.2,.9],400,440,250);
+    s3.textContent="";grid(s3,ob,rule);
+    TRK.forEach((k,j)=>{const q=ob.p(P[k]),g=ob.p([P[k][0],P[k][1],0]);el(s3,"line",{x1:q[0],y1:q[1],x2:g[0],y2:g[1],stroke:cols[j],"stroke-opacity":.35,"stroke-dasharray":"3 3"})});
+    cube(s3,ob,P,faint);trails(s3,ob,t);heads(s3,ob,t,P,null);frustum(s3,ob,camA,acc,.6);
+    const la=ob.p(camA);el(s3,"text",{x:la[0]+8,y:la[1]-8,"font-family":"IBM Plex Mono,monospace","font-size":13,fill:acc}).textContent="A";
+    el(s3,"text",{x:14,y:238,"font-family":"IBM Plex Mono,monospace","font-size":13,fill:faint}).textContent="world · metres";
+    // multi-view
+    const eye2=[10.5*Math.cos(az-.6),10.5*Math.sin(az-.6),7.0];const ob2=cam(eye2,[0,0.2,.9],330,440,250);
+    sm.textContent="";grid(sm,ob2,rule);cube(sm,ob2,P,faint);
+    const tgt=P[TRK[0]],tq=ob2.p(tgt);
+    [[camA,"A"],[camB,"B"],[camC,"C"]].forEach(([e,lab])=>{const ep=frustum(sm,ob2,e,acc,.7);
+      const vis=visible(t,TRK[0],e);
+      el(sm,"line",{x1:ep[0],y1:ep[1],x2:tq[0],y2:tq[1],stroke:cols[0],"stroke-width":vis?1.8:1.4,"stroke-dasharray":vis?"":"5 4","stroke-opacity":vis?.9:.6});
+      el(sm,"text",{x:ep[0]+7,y:ep[1]-7,"font-family":"IBM Plex Mono,monospace","font-size":13,fill:acc}).textContent=lab});
+    trails(sm,ob2,t);heads(sm,ob2,t,P,null);
+    el(sm,"circle",{cx:tq[0],cy:tq[1],r:9,fill:"none",stroke:cols[0],"stroke-width":2});
+    el(sm,"text",{x:14,y:24,"font-family":"IBM Plex Mono,monospace","font-size":13,fill:faint}).textContent="3 synchronized cameras";
+  }
+  function loop(ts){const sl=s2.closest(".slide");if(sl&&!sl.hidden)frame(ts);requestAnimationFrame(loop)}
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- 2D → 3D lift animation ---------- */
+(function(){
+  const svg=document.getElementById("lift");if(!svg)return;
+  const NS="http://www.w3.org/2000/svg";
+  const cols=["#E4572E","#F3A712","#4CB944","#2E86DE","#8E44AD","#E84393"];
+  const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+  const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const nrm=a=>{const l=Math.hypot(...a);return[a[0]/l,a[1]/l,a[2]/l]},lerp=(a,b,k)=>add(a,mul(sub(b,a),k));
+  function basis(eye,tgt){const fw=nrm(sub(tgt,eye)),r=nrm(cross(fw,[0,0,1])),u=cross(r,fw);return{fw,r,u}}
+  const W=980,H=520;
+  const obsEye=[-1.27,-5.0,3.3],obs=basis(obsEye,[0.05,0.2,0.45]),F=1250;
+  const P2=P=>{const d=sub(P,obsEye),z=dot(d,obs.fw);return[W/2+F*dot(d,obs.r)/z,H/2-F*dot(d,obs.u)/z]};
+  const camA=[-1.75,-0.85,1.05],A=basis(camA,[0.6,0.45,0.55]),DP=.85,HW=.3,HH=.22;
+  const onPlane=P=>{const d=sub(P,camA);return add(camA,mul(d,DP/dot(d,A.fw)))};
+  // office chair: base (static, rolls) + seat/back (swivel)
+  const BASE=[...Array(5)].map((_,k)=>{const a=k*2*Math.PI/5+.3;return[.33*Math.cos(a),.33*Math.sin(a),.05]}).concat([[0,0,.11],[0,0,.44]]);
+  const TOP=[[.23,.23,.47],[.23,-.23,.47],[-.23,-.23,.47],[-.23,.23,.47],[-.26,.21,.6],[-.26,-.21,.6],[-.33,-.2,1.04],[-.33,.2,1.04]];
+  const EDG=[[5,0],[5,1],[5,2],[5,3],[5,4],[5,6],[7,8],[8,9],[9,10],[10,7],[11,12],[12,13],[13,14],[14,11],[10,11],[9,12]];
+  const TRK=[14,13,7,8,12,0],PER=7.5,HIST=1.3,LOOP=10;
+  function corners(t){const w=2*Math.PI*t/PER;
+    const c=[0.6+0.28*Math.sin(w),0.45+0.16*Math.sin(2*w),0],th=1.15*t+0.5*Math.sin(w);
+    const ct=Math.cos(th),st=Math.sin(th);
+    const b=BASE.map(([x,y,z])=>[x+c[0],y+c[1],z]);
+    const tp=TOP.map(([x,y,z])=>[x*ct-y*st+c[0],x*st+y*ct+c[1],z]);
+    return b.concat(tp)}
+  const ease=x=>x<0?0:x>1?1:x*x*(3-2*x);
+  const el=(tag,a)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e};
+  const css=getComputedStyle(document.documentElement),tok=n=>css.getPropertyValue(n).trim()||"#888";
+  const pts=a=>a.map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join(" ");
+  let cur=0,from=0,to=0,t0=0,lastT=null;const flag=document.getElementById("liftflag");
+  function frame(ts){const t=performance.now()/1000;lastT=t;
+    const tgt=flag&&flag.classList.contains("on")?1:0;
+    if(tgt!==to){from=cur;to=tgt;t0=t}
+    cur=from+(to-from)*ease(Math.min(1,(t-t0)/1.6));
+    const al=cur;
+    const rule=tok("--rule"),faint=tok("--faint"),acc=tok("--accent"),muted=tok("--muted");
+    svg.textContent="";
+    for(let i=-3;i<=4;i++){const a=P2([i*.5-.2,-1.2,0]),b=P2([i*.5-.2,2.0,0]);el("line",{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:rule});
+      const c=P2([-1.7,i*.45-.2,0]),d=P2([1.7,i*.45-.2,0]);el("line",{x1:c[0],y1:c[1],x2:d[0],y2:d[1],stroke:rule})}
+    const cc=add(camA,mul(A.fw,DP)),K=[[1,1],[-1,1],[-1,-1],[1,-1]].map(([a,b])=>add(cc,add(mul(A.r,a*HW),mul(A.u,b*HH))));
+    const e2=P2(camA),K2=K.map(P2);
+    K2.forEach(q=>el("line",{x1:e2[0],y1:e2[1],x2:q[0],y2:q[1],stroke:acc,"stroke-width":1.6}));
+    el("polygon",{points:pts(K2),fill:acc,"fill-opacity":.10+.08*(1-al),stroke:acc,"stroke-width":2});
+    el("circle",{cx:e2[0],cy:e2[1],r:5,fill:acc});
+    const lab=(x,y,txt,col,op)=>{const e=el("text",{x,y,"font-family":"IBM Plex Mono,monospace","font-size":17,fill:col,opacity:op});e.textContent=txt};
+    lab(K2[1][0]-6,K2[1][1]-12,"image · pixels",acc,.35+.65*(1-al));
+    const hi=tok("--hi"),is3=al>=.5,bt=is3?"3D":"2D",bc=is3?hi:acc,bw=74,bx0=W-18-bw,by0=H-64;
+    el("rect",{x:bx0,y:by0,width:bw,height:48,rx:10,fill:bc,"fill-opacity":.16,stroke:bc,"stroke-width":2});
+    const bx=el("text",{x:bx0+bw/2,y:by0+35,"text-anchor":"middle","font-family":"IBM Plex Sans Condensed,Arial Narrow,sans-serif","font-weight":700,"font-size":32,fill:bc});bx.textContent=bt;
+    const P=corners(t);
+    EDG.forEach(([a,b])=>{const q=P2(P[a]),r=P2(P[b]);el("line",{x1:q[0],y1:q[1],x2:r[0],y2:r[1],stroke:faint,"stroke-width":1.8,opacity:al})});
+    const rayOp=al>.001&&al<.999?.8:al>=.999?.18:0;
+    TRK.forEach((k,j)=>{const q=P2(onPlane(P[k])),r=P2(P[k]);el("line",{x1:e2[0],y1:e2[1],x2:r[0],y2:r[1],stroke:cols[j],"stroke-width":1.2,"stroke-dasharray":"4 5",opacity:rayOp})});
+    TRK.forEach((k,j)=>{let d2="",d3="";const n=22;
+      for(let i=0;i<=n;i++){const Q=corners(t-HIST*(1-i/n))[k];const a=P2(onPlane(Q)),b=P2(Q);
+        d2+=(i?"L":"M")+a[0].toFixed(1)+" "+a[1].toFixed(1);d3+=(i?"L":"M")+b[0].toFixed(1)+" "+b[1].toFixed(1)}
+      el("path",{d:d2,fill:"none",stroke:cols[j],"stroke-width":2.6,"stroke-linecap":"round",opacity:1-al});
+      el("path",{d:d3,fill:"none",stroke:cols[j],"stroke-width":3,"stroke-linecap":"round",opacity:al});
+      const g=P2([P[k][0],P[k][1],0]),r=P2(P[k]);
+      el("line",{x1:r[0],y1:r[1],x2:g[0],y2:g[1],stroke:cols[j],"stroke-dasharray":"3 4",opacity:.45*al});
+      const h=P2(lerp(onPlane(P[k]),P[k],al));el("circle",{cx:h[0],cy:h[1],r:7,fill:cols[j]})});
+  }
+  function loop(ts){const sl=svg.closest(".slide");if(sl&&!sl.hidden)frame(ts);else lastT=null;requestAnimationFrame(loop)}
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- D4RT query diagram ---------- */
+(function(){
+  const svg=document.getElementById("d4q");if(!svg)return;
+  const NS="http://www.w3.org/2000/svg",sl=svg.closest(".slide");
+  const el=(p,tag,a,txt)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e};
+  const C={y:"#F2C500",b:"#7FB2E5",o:"#F28C28",p:"#F06FAE"};
+  const FONT="IBM Plex Sans,system-ui,sans-serif",COND="IBM Plex Sans Condensed,Arial Narrow,sans-serif",MONO="IBM Plex Mono,monospace";
+  let built=false,tDot,tPath,g1,g2,g3,tok,SY,TY,FX,FW,gpRef,recon;
+  let fontOK=!document.fonts;try{Promise.all([document.fonts.load('26px "IBM Plex Sans"'),document.fonts.load('700 27px "IBM Plex Sans Condensed"')]).then(()=>{fontOK=true},()=>{fontOK=true});setTimeout(()=>{fontOK=true},3000)}catch(e){fontOK=true}
+  function build(){
+  const g0=el(svg,"g",{});g1=el(svg,"g",{class:"qs",opacity:0});g2=el(svg,"g",{class:"qs",opacity:0});g3=el(svg,"g",{class:"qs",opacity:0});
+  // defs
+  const defs=el(svg,"defs",{});
+  const mk=el(defs,"marker",{id:"d4ah",viewBox:"0 0 10 10",refX:8,refY:5,markerWidth:7,markerHeight:7,orient:"auto"});el(mk,"path",{d:"M0 0 L10 5 L0 10z",fill:"var(--ink)"});
+  // frames
+  FW=262;const FH=146;FX=[0,276,552,828];const FY=6;
+  FX.forEach((x,i)=>{const cp=el(defs,"clipPath",{id:"d4c"+i});el(cp,"rect",{x,y:FY,width:FW,height:FH,rx:14});
+    el(g0,"image",{href:`assets/d4rt_f${i+1}.jpg`,x,y:FY,width:FW,height:FH,preserveAspectRatio:"xMidYMid slice","clip-path":`url(#d4c${i})`,opacity:i===2?.55:1})});
+  const vt=el(g0,"rect",{x:12,y:16,width:86,height:34,rx:8,fill:"#fff"});el(g0,"text",{x:55,y:41,"text-anchor":"middle","font-family":FONT,"font-size":22,fill:"#111"},"Video");
+  el(g0,"text",{x:690,y:84,"text-anchor":"middle","font-family":FONT,"font-size":30,fill:"#fff"},"···");
+  // timeline
+  TY=186;el(g0,"line",{x1:0,y1:TY,x2:1095,y2:TY,stroke:"var(--ink)","stroke-width":2.5,"marker-end":"url(#d4ah)"});
+  el(g0,"text",{x:1080,y:TY-14,"text-anchor":"end","font-family":MONO,"font-size":15,fill:"var(--faint)"},"time");
+  // encoder column
+  const RX=1150,RW=250;
+  const box=(g,y,h,t1,t2,fill)=>{el(g,"rect",{x:RX,y,width:RW,height:h,rx:16,fill:fill||"var(--card)",stroke:"var(--ink)","stroke-width":2.2});
+    el(g,"text",{x:RX+RW/2,y:y+h/2-6,"text-anchor":"middle","font-family":FONT,"font-size":25,fill:"var(--ink)"},t1);
+    el(g,"text",{x:RX+RW/2,y:y+h/2+24,"text-anchor":"middle","font-family":FONT,"font-size":25,fill:"var(--ink)"},t2)};
+  el(g0,"line",{x1:1098,y1:78,x2:RX-8,y2:78,stroke:"var(--ink)","stroke-width":4,"marker-end":"url(#d4ah)"});
+  box(g0,14,128,"Self-Attention","Encoder","var(--accent-soft)");
+  el(g0,"line",{x1:RX+RW/2,y1:150,x2:RX+RW/2,y2:222,stroke:"var(--ink)","stroke-width":3,"stroke-dasharray":"10 8"});
+  el(g0,"text",{x:RX+RW/2,y:260,"text-anchor":"middle","font-family":FONT,"font-size":27,fill:"var(--ink)"},"Global Scene");
+  el(g0,"text",{x:RX+RW/2,y:294,"text-anchor":"middle","font-family":FONT,"font-size":27,fill:"var(--ink)"},"Representation");
+  // decoder (step 2)
+  el(g2,"line",{x1:RX+RW/2,y1:306,x2:RX+RW/2,y2:388,stroke:"var(--ink)","stroke-width":3,"stroke-dasharray":"10 8","marker-end":"url(#d4ah)"});
+  box(g2,396,128,"Cross-Attention","Decoder","var(--hi-soft)");
+  el(g2,"line",{x1:RX+RW/2,y1:530,x2:RX+RW/2,y2:568,stroke:"var(--hi)","stroke-width":3.5,"marker-end":"url(#d4ah)"});
+  el(g2,"text",{x:RX+RW/2,y:604,"text-anchor":"middle","font-family":COND,"font-weight":700,"font-size":27,fill:"var(--hi)"},"3D point P = (X, Y, Z)");
+  // step 1: sentence with tokens
+  SY=258;let x=4;
+  const segs=[["Predict the 3D position of this ",null],["2D","y"],[" ",null],["source","b"],[" point, into this ",null],["target","o"],[" timestep as viewed from this ",null],["camera","p"]];
+  tok={};
+  segs.forEach(([s,c])=>{if(c)x+=7;const t=el(g1,"text",{x,y:SY,"font-family":FONT,"font-size":23.5,fill:"var(--ink)",style:"white-space:pre"},s.replace(/ /g,"\u00a0"));
+    const t0=t.textContent;t.textContent=t0+"x";const wa=t.getComputedTextLength();t.textContent="x";const wb=t.getComputedTextLength();t.textContent=t0;const w=wa-wb;
+    if(c){const r=el(g1,"rect",{x:x-5,y:SY-26,width:w+10,height:35,rx:7,fill:C[c],stroke:"var(--ink)","stroke-width":1.6});g1.insertBefore(r,t);t.setAttribute("fill","#111");tok[c]={x:x+w/2,l:x-5,r:x+w+5}}
+    x+=w+(c?7:0)});
+  // dots + connectors
+  const dot=(cx,c)=>el(g1,"circle",{cx,cy:TY,r:12,fill:C[c],stroke:"var(--ink)","stroke-width":2});
+  const curve=(x1,y1,x2,y2,c)=>{const p=el(g1,"path",{d:`M${x1} ${y1} C ${x1} ${y1-40}, ${x2} ${y2+40}, ${x2} ${y2+14}`,fill:"none",stroke:C[c],"stroke-width":3,class:"drawl"});return p};
+  const qx=FX[0]+92,qy=FY+66;
+  curve(tok.y.x,SY-30,qx,qy+2,"y");el(g1,"circle",{cx:qx,cy:qy,r:11,fill:C.y,stroke:"#111","stroke-width":2.4,class:"pulse"});
+  dot(FX[0]+FW/2,"b");curve(tok.b.x,SY-30,FX[0]+FW/2,TY-2,"b");
+  dot(FX[1]+FW/2,"o");curve(tok.o.x,SY-30,FX[1]+FW/2,TY-2,"o");
+  dot(FX[3]+FW/2,"p");curve(tok.p.x,SY-30,FX[3]+FW/2,TY-2,"p");
+  // step 2: embedding panel
+  const PY=330,PH=232;const gp=el(g2,"g",{class:"gp"});gpRef=gp;
+  el(gp,"rect",{x:0,y:PY,width:1095,height:PH,rx:22,fill:"var(--card)",stroke:"var(--rule)","stroke-width":1.5});
+  el(gp,"rect",{x:16,y:PY+16,width:190,height:150,rx:14,fill:"var(--paper)",stroke:"var(--rule)"});
+  el(gp,"text",{x:111,y:PY+62,"text-anchor":"middle","font-family":FONT,"font-size":32,fill:"var(--ink)"},"Query");
+  el(gp,"text",{x:111,y:PY+128,"text-anchor":"middle","font-size":46},"🎯");
+  el(gp,"text",{x:111,y:PY+206,"text-anchor":"middle","font-family":FONT,"font-size":22,fill:"var(--faint)"},"embedding");
+  const cols=[{lab:"(u, v)",c:"y",x0:224,x1:520,from:["y","b"]},{lab:"t src",c:"b",x0:534,x1:720},{lab:"t tgt",c:"o",x0:734,x1:910},{lab:"t cam",c:"p",x0:924,x1:1082}];
+  cols.forEach((k,i)=>{const cx=(k.x0+k.x1)/2;
+    const L=tok[k.c].l,R=tok[k.c].r; // funnel from token to box
+    const fl=i===0?tok.y.l:L,fr=i===0?tok.y.r:R;
+    el(gp,"polygon",{points:`${fl},${SY+12} ${fr},${SY+12} ${k.x1},${PY+18} ${k.x0},${PY+18}`,fill:C[k.c],opacity:.28});
+    el(gp,"rect",{x:k.x0,y:PY+18,width:k.x1-k.x0,height:58,rx:10,fill:"var(--paper)",stroke:"var(--rule)"});
+    const lb=el(gp,"text",{x:cx,y:PY+58,"text-anchor":"middle","font-family":"Georgia,serif","font-style":"italic","font-size":30,fill:"var(--ink)"});
+    if(i===0)lb.textContent="(u, v)";else{lb.textContent="t";const s=el(lb,"tspan",{"font-size":18,dy:6,"font-style":"italic"});s.textContent=" "+k.lab.split(" ")[1]}
+  });
+  // sub-embeddings
+  const chip=(cx,y,kind,label)=>{el(gp,"line",{x1:cx,y1:PY+82,x2:cx,y2:y-6,stroke:"var(--faint)","stroke-width":1.6,"marker-end":"url(#d4ah)"});
+    el(gp,"rect",{x:cx-30,y,width:60,height:60,rx:10,fill:"var(--paper)",stroke:"var(--rule)"});
+    if(kind==="patch"){const s=el(gp,"svg",{x:cx-30,y,width:60,height:60,viewBox:`${qx-34} ${qy-34} 68 68`});el(s,"image",{href:"assets/d4rt_f1.jpg",x:FX[0],y:FY,width:FW,height:FH,preserveAspectRatio:"xMidYMid slice"});el(s,"circle",{cx:qx,cy:qy,r:7,fill:C.y,stroke:"#111","stroke-width":2})}
+    else if(kind==="fourier")el(gp,"path",{d:`M${cx-22} ${y+30} q 7 -20 14 0 t 14 0 t 14 0`,fill:"none",stroke:"var(--ink)","stroke-width":2});
+    else{el(gp,"line",{x1:cx-20,y1:y+30,x2:cx+20,y2:y+30,stroke:"var(--ink)","stroke-width":2});[-12,0,12].forEach(d=>el(gp,"line",{x1:cx+d,y1:y+24,x2:cx+d,y2:y+36,stroke:"var(--ink)","stroke-width":2}))}
+    el(gp,"text",{x:cx,y:y+90,"text-anchor":"middle","font-family":FONT,"font-size":20,fill:"var(--faint)"},label)};
+  const CY=PY+108;
+  chip(300,CY,"patch","patch");chip(444,CY,"fourier","fourier");chip(627,CY,"d","discrete");chip(822,CY,"d","discrete");chip(1003,CY,"d","discrete");
+  [372,536,725,913].forEach(px=>el(gp,"text",{x:px,y:CY+40,"text-anchor":"middle","font-family":FONT,"font-size":28,fill:"var(--faint)"},"+"));
+  el(g2,"line",{x1:1098,y1:PY+120,x2:RX-8,y2:PY+120,stroke:"var(--ink)","stroke-width":4,"marker-end":"url(#d4ah)"});
+  // step 3: 3D reconstruction replaces the embedding panel
+  const fo=el(g3,"foreignObject",{x:0,y:290,width:1095,height:350});
+  const wrap=document.createElement("div");wrap.style.cssText="width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:28px;background:#000;border-radius:22px;overflow:hidden";
+  recon=document.createElement("video");recon.src="assets/d4rt_kitchen_recon.mp4";recon.muted=true;recon.loop=true;recon.playsInline=true;recon.setAttribute("playsinline","");recon.style.cssText="height:100%;display:block";
+  const cap=document.createElement("div");cap.style.cssText="font:600 24px/1.25 'IBM Plex Sans Condensed',sans-serif;color:#F2F4F8;max-width:300px";cap.innerHTML="4D scene from the decoded queries<br><span style=\"font:400 17px/1.4 'IBM Plex Sans',sans-serif;color:#A7AFBF\">all-pixel 3D tracks + point cloud</span>";
+  wrap.appendChild(recon);wrap.appendChild(cap);fo.appendChild(wrap);
+  // step-driven visibility
+  const flags=[...sl.querySelectorAll(".flagstep")];
+  function upd(){const st=flags.filter(f=>f.classList.contains("on")).length;
+    [g1,g2,g3].forEach((g,i)=>{g.setAttribute("opacity",st>i?1:0);g.classList.toggle("on",st>i)});
+    gpRef.setAttribute("opacity",st>=3?0:1);
+    try{if(st>=3&&!sl.hidden){if(recon.paused){recon.currentTime=0;const p=recon.play();if(p)p.catch(()=>{})}}else recon.pause()}catch(e){}}
+  new MutationObserver(upd).observe(sl,{subtree:true,attributes:true,attributeFilter:["class"]});upd();
+  tDot=g1.querySelectorAll("circle")[2];tPath=g1.querySelectorAll("path")[2];
+  }
+  function sweep(ts){if(!built&&!sl.hidden&&fontOK){build();built=true}
+    if(!built){requestAnimationFrame(sweep);return}
+    if(g3.classList.contains("on")&&!sl.hidden){const u=(Math.sin(ts/900)+1)/2,cx=FX[1]+FW/2+u*(FX[3]-FX[1]);tDot.setAttribute("cx",cx);
+      tPath.setAttribute("d",`M${tok.o.x} ${SY-30} C ${tok.o.x} ${SY-70}, ${cx} ${TY+40}, ${cx} ${TY+12}`)}
+    else{tDot.setAttribute("cx",FX[1]+FW/2);tPath.setAttribute("d",`M${tok.o.x} ${SY-30} C ${tok.o.x} ${SY-70}, ${FX[1]+FW/2} ${TY+40}, ${FX[1]+FW/2} ${TY+12}`)}
+    requestAnimationFrame(sweep)}
+  requestAnimationFrame(sweep);
+})();
+
+/* ---------- multi-surface ray animation ---------- */
+(function(){
+  const svg=document.getElementById("raysvg");if(!svg)return;
+  const NS="http://www.w3.org/2000/svg",sl=svg.closest(".slide");
+  const el=(p,t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e};
+  const FONT="IBM Plex Sans,system-ui,sans-serif",MONO="IBM Plex Mono,monospace",COND="IBM Plex Sans Condensed,sans-serif";
+  const FRONT="var(--front)",BACK="var(--back)",GY=440,RY=250,X0=178;
+  const X=d=>X0+d*80;
+  const defs=el(svg,"defs",{});
+  const gl=el(defs,"filter",{id:"rglow",x:"-50%",y:"-50%",width:"200%",height:"200%"});el(gl,"feGaussianBlur",{stdDeviation:5,result:"b"});const mg=el(gl,"feMerge",{});el(mg,"feMergeNode",{in:"b"});el(mg,"feMergeNode",{in:"SourceGraphic"});
+  const g=el(svg,"g",{});
+  // ground + back wall
+  el(g,"line",{x1:20,y1:GY,x2:1390,y2:GY,stroke:"var(--rule)","stroke-width":2});
+  for(let i=0;i<14;i++)el(g,"line",{x1:60+i*100,y1:GY,x2:30+i*100,y2:GY+18,stroke:"var(--rule)","stroke-width":1.5});
+  el(g,"rect",{x:1330,y:70,width:40,height:GY-70,fill:"var(--chrome)",stroke:"var(--rule)"});
+  // camera
+  el(g,"path",{d:`M60 ${RY} L ${X0} 150 L ${X0} 350 Z`,fill:"var(--accent-soft)",stroke:"var(--accent)","stroke-width":2});
+  el(g,"rect",{x:X0-6,y:150,width:12,height:200,rx:3,fill:"var(--card)",stroke:"var(--accent)","stroke-width":2});
+  el(g,"text",{x:84,y:390,"font-family":MONO,"font-size":16,fill:"var(--accent)"},"camera");
+  // person
+  const P0=X(7.1),P1=X(7.5);
+  el(g,"circle",{cx:(P0+P1)/2,cy:150,r:24,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
+  el(g,"rect",{x:P0,y:182,width:P1-P0,height:140,rx:14,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
+  el(g,"path",{d:`M${P0+8} 322 L ${P0+2} ${GY} M${P1-8} 322 L ${P1-2} ${GY}`,stroke:"var(--ink)","stroke-width":2.5,fill:"none","stroke-linecap":"round"});
+  el(g,"path",{d:`M${P0+4} 200 L ${P0-26} 292 M${P1-4} 200 L ${P1+22} 286`,stroke:"var(--ink)","stroke-width":2.5,fill:"none","stroke-linecap":"round"});
+  // cabinet
+  const C0=X(12.6);
+  el(g,"rect",{x:C0,y:120,width:110,height:GY-120,rx:6,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
+  el(g,"line",{x1:C0+55,y1:130,x2:C0+55,y2:GY-10,stroke:"var(--rule)","stroke-width":2});
+  [C0+45,C0+65].forEach(x=>el(g,"circle",{cx:x,cy:280,r:4,fill:"var(--faint)"}));
+  // query pixel crosshair on image plane
+  const qp=el(g,"g",{});el(qp,"circle",{cx:X0,cy:RY,r:9,fill:"none",stroke:"var(--hi)","stroke-width":2.5});el(qp,"path",{d:`M${X0-16} ${RY} H ${X0+16} M${X0} ${RY-16} V ${RY+16}`,stroke:"var(--hi)","stroke-width":2});
+  el(g,"text",{x:X0+22,y:RY-22,"font-family":MONO,"font-size":15,fill:"var(--hi)"},"query pixel");
+  // ray
+  const rayG=el(svg,"line",{x1:X0,y1:RY,x2:X0,y2:RY,stroke:"var(--hi)","stroke-width":14,"stroke-linecap":"round",opacity:.22});
+  const ray=el(svg,"line",{x1:X0,y1:RY,x2:X0,y2:RY,stroke:"var(--hi)","stroke-width":3.5,"stroke-linecap":"round"});
+  const head=el(svg,"circle",{cx:X0,cy:RY,r:7,fill:"#fff",filter:"url(#rglow)",opacity:0});
+  // hits
+  const hits=[{x:P0,d:"7.1 m",c:FRONT,lab:"person · front",ly:-70,dx:-70},{x:P1,d:"7.5 m",c:BACK,lab:"person · back",ly:80,dx:72},{x:C0,d:"12.6 m",c:FRONT,lab:"cabinet · front",ly:-70,dx:-74}];
+  hits.forEach(h=>{h.g=el(svg,"g",{opacity:0});
+    h.ring=el(h.g,"circle",{cx:h.x,cy:RY,r:12,fill:"none",stroke:h.c,"stroke-width":3});
+    el(h.g,"circle",{cx:h.x,cy:RY,r:11,fill:h.c,stroke:"var(--paper)","stroke-width":2.5});
+    el(h.g,"line",{x1:h.x,y1:RY,x2:h.x+h.dx*0.75,y2:RY+h.ly*0.72,stroke:h.c,"stroke-width":1.5,opacity:.7});
+    el(h.g,"text",{x:h.x+h.dx,y:RY+h.ly,"text-anchor":"middle","font-family":COND,"font-weight":700,"font-size":26,fill:h.c},h.d);
+    el(h.g,"text",{x:h.x+h.dx,y:RY+h.ly+(h.ly<0?-28:24),"text-anchor":"middle","font-family":MONO,"font-size":14,fill:"var(--muted)"},h.lab)});
+  // slots
+  const SY=500,SW=118,SX=1408/2-4*(SW+14)+7;
+  el(svg,"text",{x:SX-18,y:SY+38,"text-anchor":"end","font-family":MONO,"font-size":15,fill:"var(--faint)"},"output set");
+  const slots=[];
+  for(let i=0;i<8;i++){const x=SX+i*(SW+14);
+    el(svg,"rect",{x,y:SY,width:SW,height:60,rx:10,fill:"var(--card)",stroke:"var(--rule)","stroke-width":1.5});
+    el(svg,"text",{x:x+10,y:SY+18,"font-family":MONO,"font-size":12,fill:"var(--faint)"},"slot "+i);
+    const fill=el(svg,"rect",{x,y:SY,width:SW,height:60,rx:10,fill:"none",stroke:"none","stroke-width":2.5,opacity:0});
+    const tx=el(svg,"text",{x:x+SW/2,y:SY+44,"text-anchor":"middle","font-family":COND,"font-weight":700,"font-size":21,fill:"var(--faint)"},i<3?"":"∅");
+    slots.push({fill,tx})}
+  hits.forEach((h,i)=>{h.slot=slots[i]});
+  el(svg,"text",{x:SX,y:SY+84,"font-family":MONO,"font-size":13,fill:"var(--faint)"},"slot 0 = first visible surface → ordinary TAP is a special case");
+  // legend
+  [[FRONT,"entry (front)"],[BACK,"exit (back)"]].forEach(([c,t],i)=>{el(svg,"circle",{cx:1080+i*160,cy:40,r:8,fill:c});el(svg,"text",{x:1094+i*160,y:45,"font-family":MONO,"font-size":15,fill:"var(--muted)"},t)});
+  // animate
+  const T=9.5,SPEED=280,END=C0;
+  const RT=new URLSearchParams(location.search).get("rt");
+  function frame(){const t=RT?+RT:(performance.now()/1000)%T;
+    const xr=Math.min(END,X0+Math.max(0,t-0.4)*SPEED*(t<0.4?0:1));
+    const fade=t>T-0.9?Math.max(0,(T-t)/0.9):1;
+    ray.setAttribute("x2",xr);ray.setAttribute("opacity",fade);rayG.setAttribute("x2",xr);rayG.setAttribute("opacity",.22*fade);
+    head.setAttribute("cx",xr);head.setAttribute("opacity",xr<END&&t>0.4?1:0);
+    hits.forEach(h=>{const hit=xr>=h.x-0.5;const since=hit?(t-0.4-(h.x-X0)/SPEED):-1;
+      h.g.setAttribute("opacity",hit?fade:0);
+      const rr=since>=0&&since<0.6?12+since*60:12;h.ring.setAttribute("r",rr);h.ring.setAttribute("opacity",since>=0&&since<0.6?1-since/0.6:0);
+      h.slot.fill.setAttribute("opacity",hit?fade:0);h.slot.fill.setAttribute("stroke",h.c);h.slot.fill.setAttribute("fill","color-mix(in srgb,"+h.c+" 18%,transparent)");
+      h.slot.tx.textContent=hit?h.d:"";h.slot.tx.setAttribute("fill",h.c)})}
+  function loop(){if(!sl.hidden)frame();requestAnimationFrame(loop)}
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- deck engine ---------- */
+const slides=[...document.querySelectorAll(".slide")];const N=slides.length;
+const stage=document.getElementById("stage"),bar=document.getElementById("bar"),cnt=document.getElementById("bCount"),np=document.getElementById("notesPanel");
+let cur=0,t0=null,timerId=null;
+function fit(){const vw=window.innerWidth-32,vh=window.innerHeight-8;const k=Math.min(vw/1600,vh/900);stage.style.transform=`translate(-50%,-50%) scale(${k})`}
+function fmtT(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function renderNotes(){if(np.hidden)return;const a=slides[cur].querySelector(".notes");
+  np.innerHTML=`<div class="nh"><span>Slide ${cur+1} / ${N} · ${slides[cur].dataset.title||""}</span><span>${t0?"elapsed "+fmtT(Date.now()-t0):"timer starts on first advance"}</span><span>next: ${slides[cur+1]?slides[cur+1].dataset.title:"end"}</span></div>`+(a?a.innerHTML:"<p>No notes.</p>")}
+const stepsOf=sl=>{let m=0;sl.querySelectorAll("[data-step],[data-only]").forEach(e=>{m=Math.max(m,+(e.dataset.step||e.dataset.only))});return m};
+let step=0;
+function applyStep(){const sl=slides[cur];
+  sl.querySelectorAll("[data-step]").forEach(e=>e.classList.toggle("on",step>=+e.dataset.step));
+  sl.querySelectorAll("[data-only]").forEach(e=>e.classList.toggle("on",step===+e.dataset.only));
+  sl.querySelectorAll("[data-cur]").forEach(e=>e.classList.toggle("cur",step===+e.dataset.cur))}
+function show(i,st){i=Math.max(0,Math.min(N-1,i));
+  slides.forEach((s,j)=>{const on=j===i;s.hidden=!on;s.querySelectorAll("video").forEach(v=>{try{if(on){v.currentTime=0;const p=v.play();if(p)p.catch(()=>{})}else v.pause()}catch(e){}})});
+  cur=i;bar.style.width=((i+1)/N*100)+"%";cnt.textContent=`${i+1} / ${N}`;
+  if(location.hash!=="#slide-"+(i+1)){try{history.replaceState(null,"","#slide-"+(i+1))}catch(e){location.hash="slide-"+(i+1)}}
+  step=st||0;applyStep();renderNotes();}
+function go(d){if(!t0&&d>0){t0=Date.now();timerId=setInterval(renderNotes,1000)}
+  if(d>0&&step<stepsOf(slides[cur])){step++;applyStep();return}
+  if(d<0&&step>0){step--;applyStep();return}
+  const j=Math.max(0,Math.min(N-1,cur+d));show(j,d<0?stepsOf(slides[j]):0)}
+function fromHash(){const m=/^#slide-(\d+)$/.exec(location.hash);return m?parseInt(m[1],10)-1:0}
+function toggleNotes(){np.hidden=!np.hidden;renderNotes()}
+function full(){try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen()}catch(e){}}
+document.addEventListener("keydown",e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key;
+  if(["ArrowRight","PageDown"," ","Enter"].includes(k)){e.preventDefault();go(1)}
+  else if(["ArrowLeft","PageUp","Backspace"].includes(k)){e.preventDefault();go(-1)}
+  else if(k==="Home")show(0);else if(k==="End")show(N-1);
+  else if(k==="n"||k==="N")toggleNotes();else if(k==="f"||k==="F")full();});
+document.getElementById("bPrev").onclick=()=>go(-1);document.getElementById("bNext").onclick=()=>go(1);
+document.getElementById("bNotes").onclick=toggleNotes;document.getElementById("bFull").onclick=full;
+document.getElementById("bCount").onclick=()=>show(0);
+let tx=null;document.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+document.addEventListener("touchend",e=>{if(tx==null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?1:-1);tx=null},{passive:true});
+window.addEventListener("resize",fit);window.addEventListener("hashchange",()=>{const i=fromHash();if(i!==cur)show(i)});
+fit();show(fromHash(),+(new URLSearchParams(location.search).get("st"))||0);
+})();
+</script>
