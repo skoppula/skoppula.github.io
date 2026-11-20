@@ -299,11 +299,59 @@ svg g.gp{transition:opacity .5s ease}
 .vstats .l{font-size:16px;color:var(--muted);line-height:1.3}
 .closing{justify-content:center;gap:34px}
 .closing h1 .main{font-size:60px}
-.closing .road{margin-top:0}
+.closing .road{margin-top:0;opacity:.5}
 .closing .road .card .m{height:170px}
 .closing .road h3{font-size:24px}
 .closing .road .n{font-size:38px}
 .closing .who{font-size:21px}
+#ray3d{position:relative;width:100%;height:470px;border-radius:14px;overflow:hidden;background:radial-gradient(ellipse at 50% 35%,#1b2130,#0d1118 70%)}
+#ray3d canvas{display:block}
+.r3lab{position:absolute;inset:0;pointer-events:none}
+.r3tag{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;font-family:var(--f-mono);font-size:13px;color:#cfd6e4;text-shadow:0 1px 4px #000;transition:opacity .2s}
+.r3tag b{font-family:var(--f-display);font-size:26px;line-height:1}
+.r3tag span{color:#b8c0cf}
+#rayslots{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+#rayslots .rsl{font-family:var(--f-mono);font-size:15px;color:var(--faint);margin-right:6px}
+#rayslots .rs{--c:var(--rule);width:118px;height:56px;border-radius:10px;border:1.5px solid var(--rule);background:var(--card);display:flex;flex-direction:column;justify-content:space-between;padding:6px 10px;transition:all .25s}
+#rayslots .rs span{font-family:var(--f-mono);font-size:12px;color:var(--faint)}
+#rayslots .rs b{font-family:var(--f-display);font-size:21px;color:var(--c);text-align:center;line-height:1}
+#rayslots .rs:nth-child(n+5) b::after{content:"∅";color:var(--faint)}
+#rayslots .rs.on{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,var(--card))}
+#rayslots .rsn{flex-basis:100%;font-family:var(--f-mono);font-size:13px;color:var(--faint);margin-top:2px}
+.qover{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--paper) 78%,transparent);backdrop-filter:blur(3px);z-index:4;pointer-events:none}
+.qover p{font-family:var(--f-display);font-weight:700;font-size:54px;line-height:1.2;text-align:center;max-width:1250px;text-wrap:balance}
+.qover.frag{transform:none}
+.gsteps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.gs{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;gap:3px}
+.gs.on:not(.cur){opacity:.45}
+.gs.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.gs .gn{font-family:var(--f-display);font-weight:700;font-size:26px;color:var(--accent);line-height:1}
+.gs b{font-family:var(--f-display);font-size:26px;line-height:1.05}
+.gs .who{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.gs .who.code{color:var(--ok)}.gs .who.llm{color:var(--hi)}
+.gs p{font-size:17px;color:var(--muted)}
+.gv{display:flex;flex-direction:column;gap:14px;justify-content:center}
+.gcap{font-size:22px;color:var(--muted)}.gcap b{color:var(--ink)}
+.gimg{width:100%;max-height:330px;object-fit:contain;border-radius:12px;background:#fff;display:block}
+.chips3{display:flex;flex-direction:column;gap:14px}
+.chips3>div{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chips3 .k{font-family:var(--f-mono);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);width:190px}
+.chips3 .c{font-size:20px;border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:6px 14px}
+.chips3 .c.hi2{border-color:var(--hi);color:var(--hi)}
+.gflow{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.gflow .box{font-size:21px;border:1px solid var(--rule);background:var(--card);border-radius:10px;padding:12px 16px}
+.gflow .box.llm{border-color:var(--hi)}.gflow .box.chk{border-color:var(--lav);color:var(--ink)}
+.gflow .box.ok{border-color:var(--ok);color:var(--ok)}.gflow .box.bad{border-color:var(--bad);color:var(--bad)}
+.gflow .ar{color:var(--faint);font-size:24px}
+.panv{height:560px;overflow:hidden;border-radius:12px;background:#fff}
+.panv img{width:100%;height:100%;object-fit:cover;object-position:50% 0;animation:panv 18s ease-in-out infinite alternate;display:block}
+.gk{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;padding:1px 6px;margin-right:6px;vertical-align:1px}
+.gk.ag{background:var(--hi-soft);color:var(--hi)}.gk.cd{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}.gk.hu{background:var(--lav-soft);color:var(--lav)}
+.who3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:start;margin-top:20px}
+.w3{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.w3 .gk{align-self:flex-start;font-size:14px;padding:3px 10px}
+.w3 b{font-family:var(--f-display);font-size:30px;line-height:1.1}
+.w3 ul.clean li{font-size:20px;line-height:1.35;color:var(--muted)}
 #bar{position:absolute;left:0;bottom:0;height:5px;background:var(--accent);transition:width .25s ease;z-index:5}
 #ui{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;z-index:20;opacity:.35;transition:opacity .2s}
 #ui:hover,#ui:focus-within{opacity:1}
@@ -688,39 +736,44 @@ svg g.gp{transition:opacity .5s ease}
           <g stroke="var(--faint)" stroke-width="2" fill="none"><path d="M40 440 L120 440"/><path d="M40 440 L40 360"/><path d="M40 440 L85 405"/></g>
           <text x="48" y="462" fill="var(--faint)">world frame</text>
           <!-- camera A -->
+          <g transform="rotate(11.75 92 250)">
           <path d="M92 250 L190 188 L208 198 L208 304 L190 296 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
           <path d="M92 250 L208 198 M92 250 L208 304" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
-          <text x="60" y="318" fill="var(--accent)" font-size="16">cam A (query)</text>
+          <path d="M92 250 L199 250" stroke="#9B7FE6" stroke-width="2" stroke-dasharray="5 4"/>
+          <path id="camTop" d="M92 250 L190 188" fill="none" stroke="none"/>
+          <text fill="#9B7FE6" font-size="16" dy="-7"><textPath href="#camTop" startOffset="50%" text-anchor="middle">intrinsics</textPath></text>
+          </g>
+          <text x="40" y="346" fill="var(--accent)" font-size="16">cam A (query)</text>
           <!-- camera B -->
+          <g transform="rotate(-30 640 168)">
           <path d="M640 168 L540 110 L524 122 L524 226 L540 218 Z" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
           <path d="M640 168 L524 122 M640 168 L524 226" stroke="var(--accent)" stroke-width="1.4" fill="none"/>
-          <text x="566" y="250" fill="var(--accent)" font-size="16">cam B</text>
+          </g>
+          <text x="604" y="146" fill="var(--accent)" font-size="16">cam B</text>
           <!-- trajectory -->
           <path d="M268 360 C 300 300, 350 360, 390 312 S 450 250, 482 280" fill="none" stroke="url(#trk)" stroke-width="6" stroke-linecap="round"/>
           <circle cx="390" cy="312" r="10" fill="#F3A712" stroke="var(--ink)" stroke-width="2"/>
           <!-- ray A -> X (depth) -->
-          <path d="M92 250 L390 312" stroke="var(--hi)" stroke-width="2.5" fill="none"/>
+          <path id="depthRay" d="M92 250 L390 312" stroke="var(--hi)" stroke-width="2.5" fill="none"/>
           <circle cx="200" cy="272" r="6" fill="#F3A712" stroke="var(--ink)" stroke-width="1.5"/>
-          <path d="M215 294 L382 330" stroke="var(--hi)" stroke-width="1.5" stroke-dasharray="2 4"/>
-          <text x="282" y="330" fill="var(--hi)" font-size="18" font-style="italic">Z</text>
+          <text fill="var(--hi)" font-size="17" dy="22"><textPath href="#depthRay" startOffset="52%" text-anchor="middle">depth</textPath></text>
           <!-- focal length -->
-          <path d="M92 250 L199 250" stroke="#9B7FE6" stroke-width="2" stroke-dasharray="5 4"/>
-          <text x="146" y="270" fill="#9B7FE6" font-size="18" font-style="italic">f</text>
+          
           <!-- ray B -> X (cross view) -->
           <path d="M640 168 L398 306" stroke="#E84393" stroke-width="2.5" stroke-dasharray="9 6" fill="none"/>
           <text x="450" y="237" fill="#E84393" font-size="15" text-anchor="end">same point?</text>
           <!-- pose arrow -->
-          <path d="M150 170 C 260 40, 470 30, 585 98" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#wah)"/>
-          <text x="330" y="60" fill="var(--accent)" font-size="18" text-anchor="middle">[ R | t ]</text>
+          <path id="poseArc" d="M150 170 C 260 40, 470 30, 585 98" stroke="var(--accent)" stroke-width="2.5" fill="none" marker-end="url(#wah)"/>
+          <text fill="var(--accent)" font-size="17" dy="-10"><textPath href="#poseArc" startOffset="50%" text-anchor="middle">relative camera pose</textPath></text>
           <!-- markers -->
           <g font-family="IBM Plex Sans Condensed,sans-serif" font-weight="700" font-size="17" text-anchor="middle">
-            <circle cx="118" cy="196" r="15" fill="#9B7FE6"/><text x="118" y="202" fill="#111">1</text>
+            <circle cx="96" cy="196" r="15" fill="#9B7FE6"/><text x="96" y="202" fill="#111">1</text>
             <circle cx="300" cy="296" r="15" fill="var(--hi)"/><text x="300" y="302" fill="#111">2</text>
             <circle cx="300" cy="390" r="15" fill="#4CB944"/><text x="300" y="396" fill="#111">3</text>
             <circle cx="470" cy="232" r="15" fill="#E84393"/><text x="470" y="238" fill="#111">4</text>
-            <circle cx="330" cy="92" r="15" fill="var(--accent)"/><text x="330" y="98" fill="#111">5</text>
+            <circle cx="345" cy="96" r="15" fill="var(--accent)"/><text x="345" y="102" fill="#111">5</text>
           </g>
-          <text x="268" y="390" fill="var(--faint)" text-anchor="end">track over time</text>
+          <text x="324" y="395" fill="#4CB944" font-size="16">point over time</text>
         </g>
       </svg>
     </div>
@@ -777,37 +830,78 @@ svg g.gp{transition:opacity .5s ease}
 <!-- 19 MS TASK -->
 <section class="slide" data-title="Multi-surface task">
   <h2><span style="display:block;font-size:30px;font-weight:500;color:var(--muted);margin-bottom:8px">The vision problem that motivated us:</span>A query pixel defines a ray. Track every surface it crosses.</h2>
-  <svg id="raysvg" viewBox="0 0 1408 600" style="width:100%;height:auto;display:block" role="img" aria-label="Animation: a ray shoots from the camera through a query pixel, hitting a person's front at 7.1 m and back at 7.5 m, then a cabinet's front at 12.6 m; each hit fills one output slot"></svg>
+  <div id="ray3d" role="img" aria-label="3D animation: a ray shoots from the camera through a query pixel, hitting a person's front at 7.1 m and back at 7.5 m, then a cabinet's front at 12.6 m; each hit fills one output slot"></div>
+  <div id="rayslots"><span class="rsl">output set</span><div class="rs"><span>slot 0</span><b></b></div><div class="rs"><span>slot 1</span><b></b></div><div class="rs"><span>slot 2</span><b></b></div><div class="rs"><span>slot 3</span><b></b></div><div class="rs"><span>slot 4</span><b></b></div><div class="rs"><span>slot 5</span><b></b></div><div class="rs"><span>slot 6</span><b></b></div><div class="rs"><span>slot 7</span><b></b></div><span class="rsn">slot 0 = first visible surface → ordinary TAP is a special case</span></div>
+  <div class="qover frag" data-step="1"><p>But how do we <span class="acc">generate training data at scale</span> for this,<br>and how do we <span class="hi">evaluate</span> this task?</p></div>
 </section>
 
 <!-- 20 MS DATA -->
-<section class="slide" data-title="Agentic data pipeline">
-  <h2>Code controls diversity and correctness; LLMs do the creative work</h2>
-  <div class="pipe">
-    <div class="stepbox"><span class="who code">code</span><p>Sample a spec from a grammar: setting, motion level, one of 48 hard scenarios (glass, refraction, porous occluders…)</p></div>
-    <div class="arrow">→</div>
-    <div class="stepbox"><span class="who llm">small LLM + verifier</span><p>Write the spec as a prompt; a verifier agent rejects misaligned or underspecified ones</p></div>
-    <div class="arrow">→</div>
-    <div class="stepbox"><span class="who llm">strong LLM</span><p>Write a Blender script from 3,488 assets and 797 mocap clips</p></div>
-    <div class="arrow">→</div>
-    <div class="stepbox"><span class="who llm">planner agent</span><p>Up to 8 moving cameras on 16 families of 6-DoF paths</p></div>
-    <div class="arrow">→</div>
-    <div class="stepbox"><span class="who code">code</span><p>Reject floating or interpenetrating objects, sliding textures, empty views</p></div>
-    <div class="arrow">→</div>
-    <div class="stepbox"><span class="who code">ray casting</span><p>Every surface along each query ray, every frame, every camera</p></div>
+<section class="slide" data-title="Scene generation · process">
+  <h2 style="font-size:46px">Synthetic scene generation for training and eval <span class="acc">with LLMs</span></h2>
+  <div class="gsteps">
+    <div class="gs frag" data-step="1" data-cur="1"><span class="gn">1</span><b>Spec</b><span class="who code">code</span><p>sample from a grammar</p></div>
+    <div class="gs frag" data-step="2" data-cur="2"><span class="gn">2</span><b>Prompt</b><span class="who llm">small LLM + verifier</span><p>spec → text prompt</p></div>
+    <div class="gs frag" data-step="3" data-cur="3"><span class="gn">3</span><b>Scene</b><span class="who llm">strong LLM</span><p>prompt → Blender script</p></div>
+    <div class="gs frag" data-step="4" data-cur="4"><span class="gn">4</span><b>Cameras</b><span class="who llm">planner agent</span><p>up to 8 moving cameras</p></div>
+    <div class="gs frag" data-step="5" data-cur="5"><span class="gn">5</span><b>Labels</b><span class="who code">ray casting</span><p>every surface, every frame</p></div>
   </div>
-  <div class="row">
-    <div class="col" style="flex:1.1"><figure><img src="assets/ms_fig_data_scenes.jpg?v=cfe521cc41" alt="Five generated scenes from three cameras each, with top-down plots of camera paths"></figure></div>
-    <div class="col grow" style="gap:18px">
-      <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+  <div class="stack grow" style="margin-top:6px">
+    <div class="only vis gv" data-only="1">
+      <div class="chips3">
+        <div><span class="k">setting</span><span class="c">market</span><span class="c">beach pavilion</span><span class="c">tram depot</span><span class="c">Titan dunes</span><span class="c">…</span></div>
+        <div><span class="k">motion</span><span class="c">calm</span><span class="c">busy</span><span class="c">crowds</span></div>
+        <div><span class="k">challenge · 1 of 48</span><span class="c hi2">two layers either side of glass</span><span class="c hi2">refraction</span><span class="c hi2">porous occluders</span><span class="c hi2">self-occluding rotation</span></div>
+      </div>
+      <p class="gcap">Code decides <b>what</b> gets made, so coverage and validity are controlled, not hoped for.</p>
+    </div>
+    <div class="only vis gv" data-only="2">
+      <div class="gflow"><span class="box">spec</span><span class="ar">→</span><span class="box llm">small LLM writes the prompt</span><span class="ar">→</span><span class="box chk">verifier agent: does it match the spec?</span><span class="ar">→</span><span class="box ok">✓ keep</span><span class="box bad">✗ retry with the problems fed back</span></div>
+      <p class="gcap">Language models do the <b>creative</b> work; an agent checks the language model.</p>
+    </div>
+    <div class="only vis gv" data-only="3">
+      <div class="pan" style="height:330px;border-radius:12px"><img src="assets/ms_scenes_hd.jpg?v=1afaf1ff5c" alt="LLM-built Blender scenes"></div>
+      <p class="gcap">3,488 Objaverse, ABO and Poly Haven assets · 797 motion-capture clips · procedural geometry</p>
+    </div>
+    <div class="only vis gv" data-only="4">
+      <img class="gimg" src="assets/ms_fig_data_scenes.jpg?v=cfe521cc41" alt="Generated scenes from three cameras each, with top-down plots of the camera paths">
+      <p class="gcap">16 families of 6-DoF camera paths: orbits, dollies, subject follows</p>
+    </div>
+    <div class="only vis gv" data-only="5">
+      <img class="gimg" src="assets/ms_labels_hd.jpg?v=ef84c8b3d8" alt="Labelled query rays: each query point and the surfaces along its ray, such as the floor under a carried crate or the wall behind a worker" style="max-height:340px;object-fit:cover;object-position:top">
+      <p class="gcap">Labels never come from an LLM: ray casts against the rendered triangles make them exact.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Scene generation · samples">
+  <h2 style="font-size:46px">What the pipeline produces</h2>
+  <div class="row" style="gap:28px;align-items:stretch">
+    <div class="col" style="flex:1.15;gap:10px">
+      <div class="pan" style="height:300px;border-radius:12px"><img src="assets/ms_scenes_hd.jpg?v=1afaf1ff5c" alt="Gallery of generated scenes"></div>
+      <div class="stats" style="grid-template-columns:repeat(4,1fr)">
         <div class="stat"><span class="v">14,916</span><span class="l">dynamic scenes, 8 cameras</span></div>
         <div class="stat"><span class="v">39.7M</span><span class="l">labeled query rays</span></div>
-        <div class="stat"><span class="v">2.96</span><span class="l">targets per ray on average</span></div>
+        <div class="stat"><span class="v">2.96</span><span class="l">targets per ray</span></div>
         <div class="stat"><span class="v">81%</span><span class="l">of rays with ≥ 2 targets</span></div>
       </div>
       <div class="kicker">Where the targets are</div>
       <div id="c-ms-mix"></div>
     </div>
+    <div class="col grow"><div class="panv"><img src="assets/ms_labels_hd.jpg?v=ef84c8b3d8" alt="Labelled query rays with every surface along each ray"></div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Verification design">
+  <h2 style="font-size:48px">Verification: <span class="acc">who checks what</span></h2>
+  <div class="who3">
+    <div class="w3"><span class="gk ag">agents</span><b>Check the LLMs</b>
+      <ul class="clean"><li>Verifier agent compares every prompt with its spec</li><li>Failures retried with the problems fed back</li></ul></div>
+    <div class="w3"><span class="gk cd">code</span><b>Check the scenes and labels</b>
+      <ul class="clean"><li>Reject floating or interpenetrating objects, sliding textures, empty views</li><li>Slot 0 within 0.1 px of its query pixel</li><li>Refraction cross-checked against tracks</li></ul>
+      <div class="funnel" style="margin-top:8px"><div class="fb" style="width:100%"><span>5,000 prompts</span></div><div class="fb ok" style="width:56%"><span>2,809 valid · 56%</span></div></div></div>
+    <div class="w3"><span class="gk hu">us</span><b>Audit the labels by hand</b>
+      <div class="vstats" style="grid-template-columns:1fr 1fr 1fr;margin-top:6px"><div><span class="v">688</span><span class="l">rays, 25 scenes</span></div><div><span class="v">87%</span><span class="l">every slot right</span></div><div><span class="v">98.5%</span><span class="l">slot 0 right</span></div></div>
+      <p class="small" style="margin-top:8px">Remaining errors: layered garments, back-facing terrain, strongly curved glass.</p></div>
   </div>
 </section>
 
@@ -815,7 +909,7 @@ svg g.gp{transition:opacity .5s ease}
 <section class="slide" data-title="Multi-surface metrics">
   <h2>One headline score, two diagnostics that split it</h2>
   <div class="row">
-    <div class="panel grow" style="border-color:var(--hi)"><div class="kicker">headline</div><h3>Existence-aware AJ (EA-AJ)</h3>
+    <div class="panel grow" style="border-color:var(--hi)"><div class="kicker">headline</div><h3>Existence-aware Average Jaccard</h3>
       <ol class="small" style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px">
         <li>Keep predictions the model says exist.</li>
         <li>Hungarian-match them to true surfaces by median position error.</li>
@@ -823,10 +917,10 @@ svg g.gp{transition:opacity .5s ease}
       </ol>
       <p class="mono" style="font-size:18px;text-align:center;padding:4px 0">EA-AJ = ⅕ Σ<sub>d</sub> TP<sub>d</sub> / (|G| + |P| − TP<sub>d</sub>)</p>
       <p class="small">A missed surface adds to |G|; an invented one adds to |P|. Score 1 only if you find every surface and nothing else.</p></div>
-    <div class="panel grow"><div class="kicker">diagnostic · whether</div><h3>Detection AP</h3>
+    <div class="panel grow"><div class="kicker">Assess surface existence prediction</div><h3>Detection AP</h3>
       <p class="small">Rank all predictions by existence score, as in object detection. A hit is a median error ≤ 4 px at 256² (or 10% of depth in 3D). Needs no cutoff.</p>
       <p class="small"><b>Answers:</b> does it find the surfaces and rank them above inventions?</p></div>
-    <div class="panel grow"><div class="kicker">diagnostic · where</div><h3>Localization δ<sub>avg</sub></h3>
+    <div class="panel grow"><div class="kicker">Assess positioning of the points</div><h3>Localization δ<sub>avg</sub></h3>
       <p class="small">Hungarian-match over all predictions, ignoring existence, then TAP-Vid's fraction within thresholds.</p>
       <p class="small"><b>Answers:</b> when it tracks a surface, how close is it?</p></div>
   </div>
@@ -854,46 +948,39 @@ svg g.gp{transition:opacity .5s ease}
 </section>
 
 <!-- 24 MS vs RECON -->
-<section class="slide" data-title="Verification design">
-  <h2 style="font-size:48px">Agents build the data. <span class="acc">Verification is designed in at every stage.</span></h2>
-  <div class="vpipe">
-    <div class="vs"><span class="vn">1</span><b>Spec</b><span class="who">code</span><div class="gate">✓ sampled from a grammar: diversity and validity by construction</div></div>
-    <div class="va">→</div>
-    <div class="vs"><span class="vn">2</span><b>Prompt</b><span class="who">small LLM</span><div class="gate">✓ verifier agent checks it against the spec; regenerate on failure</div></div>
-    <div class="va">→</div>
-    <div class="vs"><span class="vn">3</span><b>Blender scene</b><span class="who">large LLM</span><div class="gate">✓ reject floating or interpenetrating objects, sliding textures, empty views</div></div>
-    <div class="va">→</div>
-    <div class="vs"><span class="vn">4</span><b>Ray-cast labels</b><span class="who">code</span><div class="gate">✓ slot 0 within 0.1 px of the query pixel; refraction cross-checked against tracks</div></div>
-    <div class="va">→</div>
-    <div class="vs"><span class="vn">5</span><b>Release</b><span class="who">code</span><div class="gate">✓ per-file checksums; failing scenes dropped</div></div>
-  </div>
-  <div class="row" style="gap:40px;margin-top:8px;align-items:stretch">
-    <div class="vbox grow">
-      <div class="kicker">Automated gates are strict</div>
-      <div class="funnel"><div class="fb" style="width:100%"><span>5,000 sampled prompts</span></div><div class="fb ok" style="width:56%"><span>2,809 valid scenes · 56%</span></div></div>
-      <p class="small">Pass rate through build, render and validation checks in one draw of the pipeline.</p>
-    </div>
-    <div class="vbox grow">
-      <div class="kicker">Then humans audit the labels</div>
-      <div class="vstats"><div><span class="v">688</span><span class="l">query rays checked by hand, 25 scenes</span></div><div><span class="v">87%</span><span class="l">every slot correct</span></div><div><span class="v">98.5%</span><span class="l">slot 0 on the right surface</span></div></div>
-      <p class="small">Remaining errors trace to a few asset types: layered garments, back-facing terrain, strongly curved glass.</p>
-    </div>
-  </div>
-</section>
+
 
 <!-- 26 DISCUSSION -->
 <section class="slide" data-title="Discussion">
-  <h2>Fun questions along the way</h2>
+  <h2>Food for thought in designing our benchmarks</h2>
   <div class="col" style="gap:18px">
-    <div class="panel"><p style="font-size:30px;line-height:1.35">How do we design scoring rubrics and verifiers for hidden trajectories that have no visual grounding? Plausible outputs should not be penalized even if they are not GT!</p></div>
-    <div class="panel"><p style="font-size:30px;line-height:1.35">Baselines cost ~10,000 GPU-hours here. What is the smallest eval that preserves the ranking, and how do you verify that it does?</p></div>
-    <div class="panel"><p style="font-size:30px;line-height:1.35">When LLMs write the environments, when does the generator's taste become the thing models overfit to?</p></div>
+    <div class="panel frag" data-step="1"><p style="font-size:30px;line-height:1.35">How do we design scoring rubrics and verifiers for hidden trajectories that have no visual grounding? Plausible outputs should not be penalized even if they are not GT!</p>
+      <svg viewBox="0 0 1300 190" style="width:100%;height:auto;display:block;margin-top:10px" role="img" aria-label="A point passes behind an occluder: the ground-truth path is one of several plausible hidden paths, while an implausible path jumps away">
+        <g font-family="IBM Plex Mono,monospace" font-size="15">
+          <rect x="470" y="20" width="360" height="150" rx="10" fill="var(--chrome)" stroke="var(--rule)"/>
+          <text x="650" y="186" text-anchor="middle" fill="var(--faint)">occluder · no visual grounding</text>
+          <path d="M60 120 C 200 110, 340 90, 470 95" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+          <path d="M830 105 C 960 112, 1100 125, 1240 120" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="60" cy="120" r="8" fill="var(--ink)"/><circle cx="1240" cy="120" r="8" fill="var(--ink)"/>
+          <path d="M470 95 C 560 98, 740 104, 830 105" fill="none" stroke="var(--ink)" stroke-width="3" stroke-dasharray="7 6"/>
+          <path d="M470 95 C 560 70, 740 80, 830 105" fill="none" stroke="var(--ok)" stroke-width="3" stroke-dasharray="7 6"/>
+          <path d="M470 95 C 560 128, 740 132, 830 105" fill="none" stroke="var(--ok)" stroke-width="3" stroke-dasharray="7 6"/>
+          <path d="M470 95 C 530 30, 600 28, 640 55 S 760 160, 830 105" fill="none" stroke="var(--bad)" stroke-width="3" stroke-dasharray="3 6"/>
+          <text x="650" y="114" text-anchor="middle" fill="var(--ink)">GT</text>
+          <text x="900" y="62" fill="var(--ok)">plausible ✓ — shouldn't be penalized</text>
+          <text x="900" y="160" fill="var(--bad)">implausible ✗</text>
+          <text x="60" y="152" fill="var(--faint)">visible</text><text x="1240" y="152" fill="var(--faint)" text-anchor="end">visible</text>
+        </g>
+      </svg></div>
+    <div class="panel frag" data-step="2"><p style="font-size:30px;line-height:1.35">Baselines cost ~10,000 GPU-hours here. What is the smallest eval that preserves the ranking, and how do you verify that it does?</p></div>
+    <div class="panel frag" data-step="3"><p style="font-size:30px;line-height:1.35">When LLMs write the environments, when does the generator's taste become the thing models overfit to?</p></div>
   </div>
 </section>
 
 <!-- CLOSING -->
 <section class="slide title-slide closing" data-title="Summary">
   <h1><span class="kick">Measuring and Modelling</span><span class="main">Long-term 3D Motion from Video</span></h1>
+  <div class="who"><b>Skanda Koppula</b><span>Google DeepMind · University College London</span></div>
   <div class="road">
     <div class="card"><div class="m"><video src="assets/tv3d.mp4?v=e572fafdb5" muted loop playsinline preload="auto"></video></div>
       <div class="b"><span class="n">1</span><span class="tag kind bench">Benchmark</span><h3><span class="lead">First benchmark for</span>3D point tracking</h3>
@@ -911,7 +998,6 @@ svg g.gp{transition:opacity .5s ease}
       <div class="b"><span class="n">4</span><span class="tag kind data">Data + evals</span><h3><span class="lead">Scaling 4D data and evals with</span>LLM-generated Blender scenes</h3>
       <div class="proj"><b>One Pixel, Many Surfaces</b><br>under review</div></div></div>
   </div>
-  <div class="who"><b>Skanda Koppula</b><span>Google DeepMind · University College London</span></div>
 </section>
 
 <span id="bar"></span>
@@ -927,6 +1013,7 @@ svg g.gp{transition:opacity .5s ease}
 </div>
 <div id="notesPanel" hidden></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
 /* ---------- charts ---------- */
@@ -1241,81 +1328,90 @@ dumbbell("c-mv-qn",{label:"AllTracker query view versus other views accuracy",ma
   requestAnimationFrame(sweep);
 })();
 
-/* ---------- multi-surface ray animation ---------- */
-(function(){
-  const svg=document.getElementById("raysvg");if(!svg)return;
-  const NS="http://www.w3.org/2000/svg",sl=svg.closest(".slide");
-  const el=(p,t,a,txt)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;p.appendChild(e);return e};
-  const FONT="IBM Plex Sans,system-ui,sans-serif",MONO="IBM Plex Mono,monospace",COND="IBM Plex Sans Condensed,sans-serif";
-  const FRONT="var(--front)",BACK="var(--back)",GY=440,RY=250,X0=178;
-  const X=d=>X0+d*80;
-  const defs=el(svg,"defs",{});
-  const gl=el(defs,"filter",{id:"rglow",x:"-50%",y:"-50%",width:"200%",height:"200%"});el(gl,"feGaussianBlur",{stdDeviation:5,result:"b"});const mg=el(gl,"feMerge",{});el(mg,"feMergeNode",{in:"b"});el(mg,"feMergeNode",{in:"SourceGraphic"});
-  const g=el(svg,"g",{});
-  // ground + back wall
-  el(g,"line",{x1:20,y1:GY,x2:1390,y2:GY,stroke:"var(--rule)","stroke-width":2});
-  for(let i=0;i<14;i++)el(g,"line",{x1:60+i*100,y1:GY,x2:30+i*100,y2:GY+18,stroke:"var(--rule)","stroke-width":1.5});
-  el(g,"rect",{x:1330,y:70,width:40,height:GY-70,fill:"var(--chrome)",stroke:"var(--rule)"});
-  // camera
-  el(g,"path",{d:`M60 ${RY} L ${X0} 150 L ${X0} 350 Z`,fill:"var(--accent-soft)",stroke:"var(--accent)","stroke-width":2});
-  el(g,"rect",{x:X0-6,y:150,width:12,height:200,rx:3,fill:"var(--card)",stroke:"var(--accent)","stroke-width":2});
-  el(g,"text",{x:84,y:390,"font-family":MONO,"font-size":16,fill:"var(--accent)"},"camera");
-  // person
-  const P0=X(7.1),P1=X(7.5);
-  el(g,"circle",{cx:(P0+P1)/2,cy:150,r:24,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
-  el(g,"rect",{x:P0,y:182,width:P1-P0,height:140,rx:14,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
-  el(g,"path",{d:`M${P0+8} 322 L ${P0+2} ${GY} M${P1-8} 322 L ${P1-2} ${GY}`,stroke:"var(--ink)","stroke-width":2.5,fill:"none","stroke-linecap":"round"});
-  el(g,"path",{d:`M${P0+4} 200 L ${P0-26} 292 M${P1-4} 200 L ${P1+22} 286`,stroke:"var(--ink)","stroke-width":2.5,fill:"none","stroke-linecap":"round"});
-  // cabinet
-  const C0=X(12.6);
-  el(g,"rect",{x:C0,y:120,width:110,height:GY-120,rx:6,fill:"var(--card)",stroke:"var(--ink)","stroke-width":2.5});
-  el(g,"line",{x1:C0+55,y1:130,x2:C0+55,y2:GY-10,stroke:"var(--rule)","stroke-width":2});
-  [C0+45,C0+65].forEach(x=>el(g,"circle",{cx:x,cy:280,r:4,fill:"var(--faint)"}));
-  // query pixel crosshair on image plane
-  const qp=el(g,"g",{});el(qp,"circle",{cx:X0,cy:RY,r:9,fill:"none",stroke:"var(--hi)","stroke-width":2.5});el(qp,"path",{d:`M${X0-16} ${RY} H ${X0+16} M${X0} ${RY-16} V ${RY+16}`,stroke:"var(--hi)","stroke-width":2});
-  el(g,"text",{x:X0+22,y:RY-22,"font-family":MONO,"font-size":15,fill:"var(--hi)"},"query pixel");
-  // ray
-  const rayG=el(svg,"line",{x1:X0,y1:RY,x2:X0,y2:RY,stroke:"var(--hi)","stroke-width":14,"stroke-linecap":"round",opacity:.22});
-  const ray=el(svg,"line",{x1:X0,y1:RY,x2:X0,y2:RY,stroke:"var(--hi)","stroke-width":3.5,"stroke-linecap":"round"});
-  const head=el(svg,"circle",{cx:X0,cy:RY,r:7,fill:"#fff",filter:"url(#rglow)",opacity:0});
+/* ---------- multi-surface ray animation (3D) ---------- */
+(function(){try{
+  const box=document.getElementById("ray3d");if(!box||!window.THREE)return;
+  const sl=box.closest(".slide"),T3=THREE;
+  const css=getComputedStyle(document.documentElement),tok=n=>css.getPropertyValue(n).trim();
+  const FRONT=tok("--front")||"#F08D3E",BACK=tok("--back")||"#6FA2F2",HI=tok("--hi")||"#F2934A";
+  const W=()=>box.clientWidth,H=()=>box.clientHeight;
+  const renderer=new T3.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(2,(window.devicePixelRatio||1)*1.4));
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=T3.PCFSoftShadowMap;
+  renderer.outputEncoding=T3.sRGBEncoding;
+  box.appendChild(renderer.domElement);
+  const scene=new T3.Scene();
+  scene.fog=new T3.Fog(0x0d1118,16,34);
+  const view=new T3.PerspectiveCamera(36,1,0.1,100);
+  // lights
+  scene.add(new T3.HemisphereLight(0xcfd8ff,0x15181e,0.5));
+  const sun=new T3.DirectionalLight(0xfff4e6,0.85);sun.position.set(4,10,6);sun.castShadow=true;
+  sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-4,right:16,top:8,bottom:-8,near:1,far:30});
+  scene.add(sun);
+  const mat=(c,o={})=>new T3.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0},o));
+  // floor + wall
+  const floor=new T3.Mesh(new T3.PlaneGeometry(60,40),mat(0x1b2029,{roughness:.95}));floor.rotation.x=-Math.PI/2;floor.position.set(6,0,0);floor.receiveShadow=true;scene.add(floor);
+  const grid=new T3.GridHelper(22,22,0x353c48,0x2a303a);grid.position.set(6.5,0.003,0);scene.add(grid);
+  const wall=new T3.Mesh(new T3.BoxGeometry(0.2,3.4,9),mat(0x3a3f4a));wall.position.set(13.5,1.7,0);wall.receiveShadow=true;scene.add(wall);
+  // person (front surface at x=7.1, back at 7.5 along the ray at y=1.25)
+  const RY=1.25,PX=7.3;
+  const skin=mat(0xd9b49a),shirt=mat(0x5a7fb5,{transparent:true,opacity:.62}),pants=mat(0x2f3540);
+  const person=new T3.Group();
+  const torso=new T3.Mesh(new T3.CylinderGeometry(.2,.18,.62,24),shirt);torso.position.y=RY;torso.castShadow=true;person.add(torso);
+  const chest=new T3.Mesh(new T3.SphereGeometry(.2,24,16),shirt);chest.position.y=RY+.31;chest.scale.y=.6;chest.castShadow=true;person.add(chest);
+  const head=new T3.Mesh(new T3.SphereGeometry(.13,24,16),skin);head.position.y=RY+.62;head.castShadow=true;person.add(head);
+  [[-.09],[.09]].forEach(([z])=>{const leg=new T3.Mesh(new T3.CylinderGeometry(.075,.06,.95,14),pants);leg.position.set(0,RY-.31-.47,z);leg.castShadow=true;person.add(leg)});
+  [[-.27,.25],[.27,-.25]].forEach(([z,r])=>{const arm=new T3.Mesh(new T3.CylinderGeometry(.05,.045,.6,12),shirt);arm.position.set(0,RY+.05,z);arm.rotation.x=r;arm.castShadow=true;person.add(arm)});
+  person.position.x=PX;scene.add(person);
+  // cabinet (front surface at x=12.6)
+  const cab=new T3.Mesh(new T3.BoxGeometry(.5,2.0,1.1),mat(0x8a6a4c,{roughness:.7}));cab.position.set(12.85,1.0,0);cab.castShadow=true;cab.receiveShadow=true;scene.add(cab);
+  const seam=new T3.Mesh(new T3.BoxGeometry(.01,1.9,.01),mat(0x4a3a2a));seam.position.set(12.595,1.0,0);scene.add(seam);
+  // query camera + frustum + image plane
+  const C0=new T3.Vector3(0,RY,0),DP=.55,HW=.36,HH=.26;
+  const camBody=new T3.Mesh(new T3.BoxGeometry(.34,.24,.26),mat(0x1c2230,{metalness:.3,roughness:.5}));camBody.position.set(-.2,RY,0);camBody.castShadow=true;scene.add(camBody);
+  const tri=mat(0x161a22,{metalness:.4,roughness:.4});[[.22,0],[-.12,.19],[-.12,-.19]].forEach(([dx,dz])=>{const a=new T3.Vector3(-.2,RY-.12,0),b=new T3.Vector3(-.2+dx,0,dz);const L=a.distanceTo(b);const leg=new T3.Mesh(new T3.CylinderGeometry(.015,.015,L,8),tri);leg.position.copy(a).add(b).multiplyScalar(.5);leg.lookAt(b);leg.rotateX(Math.PI/2);leg.castShadow=true;scene.add(leg)});
+  const lens=new T3.Mesh(new T3.CylinderGeometry(.08,.09,.12,20),mat(0x0b0e14,{metalness:.5,roughness:.3}));lens.rotation.z=Math.PI/2;lens.position.set(.0,RY,0);scene.add(lens);
+  const corners=[[DP,HH,HW],[DP,HH,-HW],[DP,-HH,-HW],[DP,-HH,HW]].map(([x,y,z])=>new T3.Vector3(x,RY+y,z));
+  const fr=[];corners.forEach(c=>fr.push(C0,c));for(let i=0;i<4;i++)fr.push(corners[i],corners[(i+1)%4]);
+  const accent=new T3.Color(tok("--accent")||"#8EAEFF");
+  scene.add(new T3.LineSegments(new T3.BufferGeometry().setFromPoints(fr),new T3.LineBasicMaterial({color:accent})));
+  const plane=new T3.Mesh(new T3.PlaneGeometry(2*HW,2*HH),new T3.MeshBasicMaterial({color:accent,transparent:true,opacity:.14,side:T3.DoubleSide}));plane.rotation.y=Math.PI/2;plane.position.set(DP,RY,0);scene.add(plane);
+  const px=new T3.Mesh(new T3.RingGeometry(.03,.045,24),new T3.MeshBasicMaterial({color:new T3.Color(HI),side:T3.DoubleSide}));px.rotation.y=Math.PI/2;px.position.set(DP+.002,RY,0);scene.add(px);
+  // ray: core + glow
+  const rayCore=new T3.Mesh(new T3.CylinderGeometry(.018,.018,1,10),new T3.MeshBasicMaterial({color:new T3.Color(HI)}));rayCore.rotation.z=Math.PI/2;scene.add(rayCore);
+  const rayGlow=new T3.Mesh(new T3.CylinderGeometry(.07,.07,1,14),new T3.MeshBasicMaterial({color:new T3.Color(HI),transparent:true,opacity:.22,depthWrite:false}));rayGlow.rotation.z=Math.PI/2;scene.add(rayGlow);
+  const tip=new T3.Mesh(new T3.SphereGeometry(.07,16,12),new T3.MeshBasicMaterial({color:0xffffff}));scene.add(tip);
   // hits
-  const hits=[{x:P0,d:"7.1 m",c:FRONT,lab:"person · front",ly:-70,dx:-70},{x:P1,d:"7.5 m",c:BACK,lab:"person · back",ly:80,dx:72},{x:C0,d:"12.6 m",c:FRONT,lab:"cabinet · front",ly:-70,dx:-74}];
-  hits.forEach(h=>{h.g=el(svg,"g",{opacity:0});
-    h.ring=el(h.g,"circle",{cx:h.x,cy:RY,r:12,fill:"none",stroke:h.c,"stroke-width":3});
-    el(h.g,"circle",{cx:h.x,cy:RY,r:11,fill:h.c,stroke:"var(--paper)","stroke-width":2.5});
-    el(h.g,"line",{x1:h.x,y1:RY,x2:h.x+h.dx*0.75,y2:RY+h.ly*0.72,stroke:h.c,"stroke-width":1.5,opacity:.7});
-    el(h.g,"text",{x:h.x+h.dx,y:RY+h.ly,"text-anchor":"middle","font-family":COND,"font-weight":700,"font-size":26,fill:h.c},h.d);
-    el(h.g,"text",{x:h.x+h.dx,y:RY+h.ly+(h.ly<0?-28:24),"text-anchor":"middle","font-family":MONO,"font-size":14,fill:"var(--muted)"},h.lab)});
-  // slots
-  const SY=500,SW=118,SX=1408/2-4*(SW+14)+7;
-  el(svg,"text",{x:SX-18,y:SY+38,"text-anchor":"end","font-family":MONO,"font-size":15,fill:"var(--faint)"},"output set");
-  const slots=[];
-  for(let i=0;i<8;i++){const x=SX+i*(SW+14);
-    el(svg,"rect",{x,y:SY,width:SW,height:60,rx:10,fill:"var(--card)",stroke:"var(--rule)","stroke-width":1.5});
-    el(svg,"text",{x:x+10,y:SY+18,"font-family":MONO,"font-size":12,fill:"var(--faint)"},"slot "+i);
-    const fill=el(svg,"rect",{x,y:SY,width:SW,height:60,rx:10,fill:"none",stroke:"none","stroke-width":2.5,opacity:0});
-    const tx=el(svg,"text",{x:x+SW/2,y:SY+44,"text-anchor":"middle","font-family":COND,"font-weight":700,"font-size":21,fill:"var(--faint)"},i<3?"":"∅");
-    slots.push({fill,tx})}
-  hits.forEach((h,i)=>{h.slot=slots[i]});
-  el(svg,"text",{x:SX,y:SY+84,"font-family":MONO,"font-size":13,fill:"var(--faint)"},"slot 0 = first visible surface → ordinary TAP is a special case");
-  // legend
-  [[FRONT,"entry (front)"],[BACK,"exit (back)"]].forEach(([c,t],i)=>{el(svg,"circle",{cx:1080+i*160,cy:40,r:8,fill:c});el(svg,"text",{x:1094+i*160,y:45,"font-family":MONO,"font-size":15,fill:"var(--muted)"},t)});
-  // animate
-  const T=9.5,SPEED=280,END=C0;
+  const hits=[{x:7.1,c:FRONT,d:"7.1 m",lab:"person · front",dx:-1,dy:-1},{x:7.5,c:BACK,d:"7.5 m",lab:"person · back",dx:1,dy:1},{x:12.6,c:FRONT,d:"12.6 m",lab:"cabinet · front",dx:-1,dy:-1}];
+  const lay=document.createElement("div");lay.className="r3lab";box.appendChild(lay);
+  hits.forEach(h=>{h.m=new T3.Mesh(new T3.SphereGeometry(.085,20,14),new T3.MeshBasicMaterial({color:new T3.Color(h.c),depthTest:false}));h.m.renderOrder=5;h.m.position.set(h.x,RY,0);scene.add(h.m);
+    h.ring=new T3.Mesh(new T3.RingGeometry(.1,.13,32),new T3.MeshBasicMaterial({color:new T3.Color(h.c),transparent:true,side:T3.DoubleSide,depthTest:false}));h.ring.renderOrder=6;h.ring.position.copy(h.m.position);scene.add(h.ring);
+    h.el=document.createElement("div");h.el.className="r3tag";h.el.style.color=h.c;h.el.innerHTML=`<b>${h.d}</b><span>${h.lab}</span>`;lay.appendChild(h.el)});
+  // output slots (HTML)
+  const slots=[...document.querySelectorAll("#rayslots .rs")];
+  const T=14.5,SPEED=1.4,START=.6,END=12.6;
   const RT=new URLSearchParams(location.search).get("rt");
-  function frame(){const t=RT?+RT:(performance.now()/1000)%T;
-    const xr=Math.min(END,X0+Math.max(0,t-0.4)*SPEED*(t<0.4?0:1));
+  function resize(){const w=W(),h=H();if(!w||!h)return;renderer.setSize(w,h,false);renderer.domElement.style.width=w+"px";renderer.domElement.style.height=h+"px";view.aspect=w/h;view.updateProjectionMatrix()}
+  function frame(now){const t=RT?+RT:(now/1000)%T;
+    const az=-0.55+0.1*Math.sin(now/1000*0.35);
+    view.position.set(5.9+8.9*Math.sin(az),3.9,8.9*Math.cos(az));view.lookAt(6.0,1.0,0);
+    const xr=Math.min(END,Math.max(0,(t-START)*SPEED));
     const fade=t>T-0.9?Math.max(0,(T-t)/0.9):1;
-    ray.setAttribute("x2",xr);ray.setAttribute("opacity",fade);rayG.setAttribute("x2",xr);rayG.setAttribute("opacity",.22*fade);
-    head.setAttribute("cx",xr);head.setAttribute("opacity",xr<END&&t>0.4?1:0);
-    hits.forEach(h=>{const hit=xr>=h.x-0.5;const since=hit?(t-0.4-(h.x-X0)/SPEED):-1;
-      h.g.setAttribute("opacity",hit?fade:0);
-      const rr=since>=0&&since<0.6?12+since*60:12;h.ring.setAttribute("r",rr);h.ring.setAttribute("opacity",since>=0&&since<0.6?1-since/0.6:0);
-      h.slot.fill.setAttribute("opacity",hit?fade:0);h.slot.fill.setAttribute("stroke",h.c);h.slot.fill.setAttribute("fill","color-mix(in srgb,"+h.c+" 18%,transparent)");
-      h.slot.tx.textContent=hit?h.d:"";h.slot.tx.setAttribute("fill",h.c)})}
-  function loop(){if(!sl.hidden)frame();requestAnimationFrame(loop)}
-  requestAnimationFrame(loop);
-})();
+    const len=Math.max(.001,xr);[rayCore,rayGlow].forEach(m=>{m.scale.y=len;m.position.set(len/2,RY,0);m.visible=xr>0.01&&fade>0});
+    rayCore.material.opacity=fade;rayCore.material.transparent=fade<1;rayGlow.material.opacity=.22*fade;
+    tip.position.set(xr,RY,0);tip.visible=xr>0.01&&xr<END;
+    const w=W(),h=H();
+    hits.forEach((hh,i)=>{const hit=xr>=hh.x-1e-6,since=hit?t-START-hh.x/SPEED:-1;
+      hh.m.visible=hit&&fade>0;hh.m.material.opacity=fade;hh.m.material.transparent=true;
+      const pop=since>=0&&since<.25?1+1.2*(1-since/.25):1;hh.m.scale.setScalar(pop);
+      hh.ring.visible=since>=0&&since<.7;hh.ring.scale.setScalar(1+since*6);hh.ring.material.opacity=Math.max(0,1-since/.7);hh.ring.lookAt(view.position);
+      const p=hh.m.position.clone().project(view);const sx=(p.x+1)/2*w,sy=(1-p.y)/2*h;
+      hh.el.style.opacity=hit?fade:0;hh.el.style.transform=`translate(${sx+hh.dx*14}px,${sy+hh.dy*18}px) translate(${hh.dx<0?"-100%":"0"},${hh.dy<0?"-100%":"0"})`;
+      const s=slots[i];if(s){s.classList.toggle("on",hit&&fade>.05);s.style.setProperty("--c",hh.c);s.querySelector("b").textContent=hit?hh.d:""}});
+    renderer.render(scene,view)}
+  let last=0;function loop(now){if(!sl.hidden){if(box.clientWidth!==last){last=box.clientWidth;resize()}frame(now)}requestAnimationFrame(loop)}
+  window.addEventListener("resize",()=>{last=0});requestAnimationFrame(loop);
+}catch(err){console.warn("3D ray scene unavailable:",err);const b=document.getElementById("ray3d");if(b)b.innerHTML='<img src="assets/ms_teaser_ray.jpg?v=df12ecae17" alt="A query ray crossing several surfaces" style="width:100%;height:100%;object-fit:contain;background:#fff">'}})();
 
 /* ---------- deck engine ---------- */
 const slides=[...document.querySelectorAll(".slide")];const N=slides.length;
