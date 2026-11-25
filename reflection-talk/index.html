@@ -406,7 +406,7 @@ ul.lim li b{color:var(--ink)}
 .nl2 .it .sub{display:block;font-family:var(--f-body);font-weight:400;font-size:25px;line-height:1.3;color:var(--muted);margin-top:6px}
 .nl2 .it>b{font-size:46px}
 .vray #rayslots{gap:8px;flex-wrap:nowrap}.vray #rayslots .rsn{display:none}.vray #rayslots .rs{width:auto;flex:1;min-width:0}.vray #rayslots .rsl{display:none}.vray #ray3d{height:440px}
-.usesbig .uses{gap:30px;margin-top:20px}.usesbig .use video{height:330px}.usesbig .use .un{font-size:32px;margin-top:8px}.usesbig .use .ud{font-size:22px}
+.usesbig .uses{gap:30px;margin-top:0}.usesbig .use video{height:330px}.usesbig .use .un{font-size:32px;margin-top:8px}.usesbig .use .ud{font-size:22px}
 .sprompt{margin-top:30px;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:16px 22px;display:flex;flex-direction:column;gap:10px}
 .sprompt .k{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--hi)}
 .sprompt p{font-size:20px;line-height:1.45;color:var(--ink)}
@@ -526,7 +526,7 @@ ul.lim li b{color:var(--ink)}
     <div class="nl2" style="flex:0 0 400px;gap:34px">
       <div class="it" data-cur="0"><b>2D</b><span class="sub">Where does this pixel go?</span></div>
       <div class="it frag" data-step="1" data-cur="1" id="liftflag"><b>3D</b><span class="sub">Where is it in the world, in metres?</span></div>
-      <div class="it frag" data-step="2" data-cur="2"><b>Every surface</b><span class="sub">What else lies along the ray, seen or hidden?</span></div>
+      <div class="it frag" data-step="2" data-cur="2"><b>Every surface</b><span class="sub">Tracking every point along the ray, seen or hidden</span></div>
     </div>
     <div class="stack grow" style="align-items:center">
       <div><svg id="lift" viewBox="0 0 980 520" style="width:100%;height:auto;display:block" role="img" aria-label="Animation: points tracked on a spinning office chair, first as 2D tracks on a camera's image plane, then lifted along camera rays into metric 3D trajectories"></svg></div>
@@ -538,8 +538,8 @@ ul.lim li b{color:var(--ink)}
 </section>
 
 <section class="slide" data-title="Where it is used" data-stage="Problem">
-  <h2 style="font-size:50px">Where point tracking is used</h2>
-  <div class="usesbig"><div class="uses">
+  <h2 style="font-size:50px"><span style="color:var(--muted);font-weight:500">Aside:</span> why should we care about this?</h2>
+  <div class="usesbig" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:40px"><div class="uses">
     <div class="use"><video src="assets/use_robot.mp4?v=725f157886" muted loop playsinline preload="auto"></video><div class="un">Gemini Robotics</div><div class="ud">Point tracks as a motion representation for manipulation.</div></div>
     <div class="use"><video src="assets/use_videogen.mp4?v=2b16bc49f2" muted loop playsinline preload="auto"></video><div class="un">Frontier video gen models (Veo/Runway)</div><div class="ud">Tracks to control+verify generated motion.</div></div>
     <div class="use"><video src="assets/use_bird.mp4?v=6b8c580dfa" muted loop playsinline preload="auto"></video><div class="un">Wildlife monitoring</div><div class="ud">Following animals' bodies in 3D from field footage.</div></div>
@@ -668,7 +668,7 @@ ul.lim li b{color:var(--ink)}
 </section>
 
 <section class="slide" data-title="Scene generation · process" data-stage="Q1 Generate">
-  <h2 style="font-size:46px">Synthetic scene generation <span class="acc">with Carbon</span></h2>
+  <h2 style="font-size:46px">Synthetic scene generation <span class="acc">with multiple LLMs</span></h2>
   <div class="gsteps">
     <div class="gs frag" data-step="1" data-cur="1"><span class="gn">1</span><b>Sample scene spec</b><span class="who code">code</span><p>sample from a grammar</p></div>
     <div class="gs frag" data-step="2" data-cur="2"><span class="gn">2</span><b>Imagine the scene</b><span class="who llm">small LLM + verifier</span><p>spec → text prompt</p></div>
@@ -753,7 +753,7 @@ ul.lim li b{color:var(--ink)}
       <ul class="gchk"><li><i class="gc">✓</i><span>Zero-information views removed<span class="gsub"><em>black or blown-out frames</em><em>view fully blocked</em><em>nothing moving in view</em></span></span></li><li><i class="gc">✓</i><span>Degenerate camera paths removed<span class="gsub"><em>static or jittering</em><em>passes through walls</em><em>implausible speed or tilt</em></span></span></li><li><i class="gc">✓</i><span>Renders consistent with their cameras<span class="gsub"><em>stored poses reproduce the image</em><em>views overlap</em></span></span></li></ul></div>
       <div class="gxr gxv"><div class="gfail" style="width:420px"><img src="assets/fail_views.jpg?v=6754dfa6f6" alt="Six camera views of one scene; two are marked rejected: one is almost entirely black and one is filled by a blurred flat surface" style="display:block;width:100%"></div><span class="l">Two views carry <b style="color:var(--bad)">no information</b>: one black, one fully blocked by a wall.</span><span class="gnote">Illustration: two views of a real scene degraded by hand.</span></div></div>
     <div class="gx gx1 only" data-only="2"><div class="gxl"><div class="gh"><b>Is the evaluation using these scenes honest?</b></div>
-      <ul class="gchk"><li><i class="gc">✓</i><span>10% of scenes and settings held out of domain<span class="gsub"><em>lighting conditions</em><em>motion captures</em><em>object types</em><em>camera trajectories</em></span></span></li><li><i class="gc">✓</i><span>Zero overlap between train and val/test scenes</span></li><li><i class="gc">✓</i><span>50 curated real-world videos rebuilt as Blender digital twins (a very expensive model, 24 h+) for a “real-world” ground-truth eval</span></li></ul></div>
+      <ul class="gchk"><li><i class="gc">✓</i><span>10% of scenes and settings held out of domain<span class="gsub"><em>lighting conditions</em><em>motion captures</em><em>object types</em><em>camera trajectories</em></span></span></li><li><i class="gc">✓</i><span>Zero overlap between train and val/test scenes</span></li><li><i class="gc">✓</i><span>50 <b style="color:var(--accent);font-weight:600">curated real-world videos</b> rebuilt as Blender <b style="color:var(--lav);font-weight:600">digital twins</b> (a very expensive model, 24 h+) for a “real-world” ground-truth eval</span></li></ul></div>
       </div>
   </div>
 </section>
@@ -788,7 +788,7 @@ ul.lim li b{color:var(--ink)}
 </section>
 
 <section class="slide" data-title="New task, new metrics" data-stage="Q3 Works">
-  <h2>A new task needs <span class="acc">new metrics</span>: one headline, two that say why</h2>
+  <h2>A new task needs <span class="acc">new metrics</span>: a headline and breakdown</h2>
   <div class="row" style="gap:22px;margin-top:6px">
     <div class="panel grow mcard" style="border-color:var(--hi)"><svg viewBox="0 0 310 120" style="width:100%;max-width:330px;display:block" aria-hidden="true"><path d="M10 55 H300" style="stroke:var(--muted);stroke-width:2;stroke-dasharray:5 5"/><path d="M0 44 L18 55 L0 66 Z" style="fill:var(--muted)"/><path d="M90 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><path d="M170 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><path d="M250 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><circle cx="90" cy="55" r="9" style="fill:var(--ok)"/><circle cx="170" cy="55" r="9" style="fill:var(--ok)"/><circle cx="250" cy="55" r="9" style="fill:none;stroke:var(--bad);stroke-width:3;stroke-dasharray:3 3"/><text x="250" y="110" text-anchor="middle" style="font-size:15px;fill:var(--bad);font-family:var(--f-body)">missed</text><circle cx="210" cy="55" r="9" style="fill:var(--bad)"/><text x="204" y="18" text-anchor="middle" style="font-size:15px;fill:var(--bad);font-family:var(--f-body)">invented</text></svg><h3>Existence-aware AJ</h3><p>The headline. Scores 1 only if every surface is found, none invented, and each is followed while hidden.</p></div>
     <div class="panel grow mcard frag" data-step="1"><svg viewBox="0 0 310 120" style="width:100%;max-width:330px;display:block" aria-hidden="true"><path d="M10 55 H300" style="stroke:var(--muted);stroke-width:2;stroke-dasharray:5 5"/><path d="M0 44 L18 55 L0 66 Z" style="fill:var(--muted)"/><path d="M90 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><path d="M170 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><path d="M250 25 V85" style="stroke:var(--ink);stroke-width:3;stroke-linecap:round"/><text x="90" y="112" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ok)">✓</text><text x="170" y="112" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--ok)">✓</text><text x="250" y="112" text-anchor="middle" style="font-size:24px;font-weight:700;fill:var(--bad)">✗</text><circle cx="90" cy="55" r="9" style="fill:var(--ok)"/><circle cx="170" cy="55" r="9" style="fill:var(--ok)"/></svg><h3>Detection AP</h3><p>Did it <b>find</b> the surfaces, and rank real ones above invented ones?</p></div>
@@ -800,14 +800,14 @@ ul.lim li b{color:var(--ink)}
       <div class="mbar"><span>“how close?” on hidden surfaces</span><i style="width:59%;background:var(--hi)"></i><b>.588</b></div>
       <div class="mbar"><span>“did it find them?”</span><i style="width:1%;background:var(--bad)"></i><b>.006</b></div>
       <p>A hidden surface sits on the <b>same pixel</b> as the visible one at the query and often stays a few pixels away, so a copy counts as “close”. Detection only scores frames where the two have <b>separated</b>: it found <b style="color:var(--bad)">nothing</b>.</p></div>
-    <div class="panel grow mdbg"><h3>And by slice, it says where to work next</h3>
+    <div class="panel grow mdbg"><h3>Slicing the eval, hinting where to work next</h3>
       <div class="gsub" style="margin-top:2px"><em>through glass</em><em>behind glass</em><em>fronts</em><em>backs</em><em>moving</em><em>static</em><em>hidden, seen later</em><em>never seen</em></div>
       <p>Each ray knows its material, motion and visibility history, so every score splits for free.</p></div>
   </div>
 </section>
 
 <section class="slide" data-title="Finding 1 · it works" data-stage="Q3 Works">
-  <h2 style="font-size:46px"><span class="fn">1</span>Trained only on generated scenes, a tracker gains the hidden surfaces <span class="acc">and keeps the visible one</span></h2>
+  <h2 style="font-size:46px;white-space:nowrap"><span class="fn">1</span>Trained on generated scenes, a tracker gains the <span class="acc">hidden surfaces</span></h2>
   <div class="row" style="gap:44px;align-items:center;flex:1">
     <div class="col" style="flex:1.35;gap:10px">
       <div class="kicker">ARROW · 50 held-out test scenes</div>
@@ -817,12 +817,13 @@ ul.lim li b{color:var(--ink)}
     <div class="col grow" style="gap:24px">
       <div class="bigstat"><span class="v">0 → .577</span><span class="l">detection AP beyond the first surface. The control stays at 0, so the gain is the task design, not just more data.</span></div>
       <div class="bigstat frag" data-step="1" style="border-color:var(--ok)"><span class="v" style="color:var(--ok)">.433 → .462</span><span class="l"><b>Real video</b> (TAP-Vid DAVIS AJ, first surface): no regression after synthetic-only fine-tuning. CoTracker3: .619 → .618.</span></div>
+      <div class="bigstat frag" data-step="2" style="border-color:var(--accent)"><span class="v" style="color:var(--accent)">.387 <span style="font-size:30px;color:var(--muted)">vs</span> .361</span><span class="l"><b>Synthetic eval vs real-world digital twins</b>: EA-AJ on our generated test scenes, and on real videos reconstructed in 3D + time.</span></div>
     </div>
   </div>
 </section>
 
 <section class="slide" data-title="Finding 2 · vs reconstruction" data-stage="Q3 Works">
-  <h2 style="font-size:46px"><span class="fn">2</span>From RGB alone, it finds more hidden surfaces than per-clip 4D reconstruction <span class="acc">given the true depth</span></h2>
+  <h2 style="font-size:46px;white-space:nowrap"><span class="fn">2</span>Stronger than <span class="acc">per-scene optimized</span> baselines (3D Gaussian-based)</h2>
   <div class="row" style="gap:44px;align-items:center;flex:1">
     <div class="col" style="flex:1.35;gap:10px">
       <div class="kicker">10 test scenes · 1,986 query rays</div>
@@ -832,7 +833,6 @@ ul.lim li b{color:var(--ink)}
     <div class="col grow" style="gap:24px">
       <div class="bigstat"><span class="v">5.7 s <span style="font-size:30px;color:var(--muted)">vs</span> 23 min</span><span class="l">per clip on one A100: feed-forward versus per-clip optimisation.</span></div>
       <div class="bigstat"><span class="v">2.5×</span><span class="l">as many surfaces found beyond the first, in 2D (.689 vs .273).</span></div>
-      <p class="small frag" data-step="1" style="border-left:4px solid var(--gray);padding-left:16px"><b>Where it loses:</b> given true depth, Shape of Motion places the <i>first</i> surface better in 3D (AJ .365 vs .232).</p>
     </div>
   </div>
 </section>
@@ -840,30 +840,30 @@ ul.lim li b{color:var(--ink)}
 <section class="slide" data-title="Finding 3 · what is still hard" data-stage="Q3 Works">
   <h2 style="font-size:46px"><span class="fn">3</span>The eval also says, by slice, <span class="hi">what is still unsolved</span></h2>
   <div class="hard4">
-    <div class="hd"><span class="kicker">refraction</span><b>Seen through glass</b>
+    <div class="hd"><b>Seen through glass</b>
       <div class="hb"><span class="hl">multi-surface model</span><i style="width:49%;background:var(--bad)"></i><span class="hv">.393</span></div>
       <div class="hb"><span class="hl">single-surface control</span><i style="width:48%;background:var(--gray)"></i><span class="hv">.383</span></div>
       <p>Barely above the control. More see-through training clips did not move it.</p></div>
-    <div class="hd"><span class="kicker">never observed</span><b>Hidden for the whole clip</b>
+    <div class="hd"><b>Hidden for the whole clip</b>
       <div class="hb"><span class="hl">never seen</span><i style="width:34%;background:var(--bad)"></i><span class="hv">.276</span></div>
       <div class="hb"><span class="hl">seen in another frame</span><i style="width:60%;background:var(--gray)"></i><span class="hv">.477</span></div>
       <p>The model mostly re-finds surfaces it saw; it rarely infers ones it never did.</p></div>
-    <div class="hd"><span class="kicker">motion</span><b>Moving surfaces</b>
+    <div class="hd"><b>Moving surfaces</b>
       <div class="hb"><span class="hl">moving</span><i style="width:60%;background:var(--bad)"></i><span class="hv">.479</span></div>
       <div class="hb"><span class="hl">static</span><i style="width:78%;background:var(--gray)"></i><span class="hv">.628</span></div>
       <p>Hidden and moving is the hardest combination.</p></div>
-    <div class="hd"><span class="kicker">3D precision</span><b>Depth of hidden surfaces</b>
+    <div class="hd"><b>Depth of hidden surfaces</b>
       <div class="hb"><span class="hl">within the tight threshold</span><i style="width:40%;background:var(--bad)"></i><span class="hv">.32</span></div>
       <div class="hb"><span class="hl">within the loose threshold</span><i style="width:86%;background:var(--gray)"></i><span class="hv">.69</span></div>
       <p>Hidden surfaces are found, but their depth is imprecise.</p></div>
   </div>
-  <p class="small" style="margin-top:4px">2D detection AP beyond the first surface, except the last card (3D localisation). Slices come free with synthetic labels: every ray knows its material, motion and visibility history.</p>
+  <p class="small" style="margin-top:4px">2D detection AP beyond the first surface, except the last card (3D localisation).</p>
 </section>
 
 <section class="slide" data-title="Answer and limits" data-stage="Answer">
   <h2 style="font-size:48px">So: can <span class="acc">synthetic environments</span> help supply training data and the eval?</h2>
   <div class="q3 q3v ansv">
-    <div class="q3c frag" data-step="1"><span class="qn">Q1</span><b>Can we generate it?</b><p><span class="vd ok">Yes.</span> 14,916 dynamic scenes and 39.7M labelled rays, with no human labels. 99.4% of scenes pass the render checks (4,968 of 5,000 in one collection).</p></div>
+    <div class="q3c frag" data-step="1"><span class="qn">Q1</span><b>Can we generate it?</b><p><span class="vd ok">Yes.</span> 114,916 dynamic scenes and 39.7M labelled rays, with no human labels, in 9 days.</p></div>
     <div class="q3c frag" data-step="2"><span class="qn">Q2</span><b>Can we trust it?</b><p><span class="vd mid">With checks at every stage.</span> Scenes, renders and splits pass automated gates, and a do-nothing baseline shows why no metric is trusted on its own.</p></div>
     <div class="q3c frag" data-step="3"><span class="qn">Q3</span><b>Does it work?</b><p><span class="vd ok">Yes, on what we can measure.</span> Hidden-surface detection from 0 to .577, first-surface tracking on real video intact. <span class="vd no">Not yet shown:</span> hidden surfaces on real video, where no labels exist.</p></div>
   </div>
@@ -929,7 +929,6 @@ ul.lim li b{color:var(--ink)}
 
 <section class="slide divider" data-title="Backup">
   <div class="big">Backup</div>
-  <h2>Earlier work, for discussion</h2>
   <p class="lede">TAPVid-3D · D4RT · TAPVid-MV · the full research arc</p>
 </section>
 
